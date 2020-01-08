@@ -1,18 +1,18 @@
 import Mock from 'mockjs'
 
 const user = {
-    'id': '@id',
-    'class': 'app\\user\\admin\\User',
-    'class_name': '系统管理员',
-    'model_name': '用户',
-    'create_time': '@datetime',
-    'update_time': '@datetime',
-    'status|1': [1, 2],
-    'statusstr|1': ['活跃', '禁用'],
-    'path': '/api/admin/v1/users/2',
-    'username': '@sentence(5, 10)',
-    'mobile': '',
-    'activity': '@integer(100, 500)'
+  'id': '@id',
+  'class': 'app\\user\\admin\\User',
+  'class_name': '系统管理员',
+  'model_name': '用户',
+  'create_time': '@datetime',
+  'update_time': '@datetime',
+  'status|1': [1, 2],
+  'statusstr|1': ['活跃', '禁用'],
+  'path': '/api/admin/v1/users/2',
+  'username': '@sentence(5, 10)',
+  'mobile': '',
+  'activity': '@integer(100, 500)'
 }
 
 const users = Mock.mock({
@@ -21,21 +21,22 @@ const users = Mock.mock({
 
 const authentications = Mock.mock({
   'items|30': [
-  {
-    'id': 965,
-    'class': 'app\\user\\admin\\Authentication',
-    'class_name': '登录认证',
-    'model_name': '认证',
-    'create_time': '2019-08-22 16:29:18',
-    'update_time': '2019-08-22 16:49:40',
-    'status|1': [0, 1, 2],
-    'statusstr|1': ['活跃', '过期', '下线'],
-    'path': '/api/admin/v1/authentications/965',
-    'session': 'ej89fobjl830eoo8pdqhi63cmq',
-    'clientip': '111.199.84.127',
-    'expiretime': '2019-08-22 18:49:40',
-    'user': user
-  }]
+    {
+      'id': 965,
+      'class': 'app\\user\\admin\\Authentication',
+      'class_name': '登录认证',
+      'model_name': '认证',
+      'create_time': '2019-08-22 16:29:18',
+      'update_time': '2019-08-22 16:49:40',
+      'status|1': [0, 1, 2],
+      'statusstr|1': ['活跃', '过期', '下线'],
+      'path': '/api/admin/v1/authentications/965',
+      'session': 'ej89fobjl830eoo8pdqhi63cmq',
+      'clientip': '111.199.84.127',
+      'expiretime': '2019-08-22 18:49:40',
+      'user': user
+    }
+  ]
 })
 
 export default [
@@ -65,9 +66,9 @@ export default [
         'per_page': per_page,
         'count': pageList.length,
         'where': {
-            'username': username,
-            'mobile': mobile,
-            'status': status
+          'username': username,
+          'mobile': mobile,
+          'status': status
         },
         'path': '/api/admin/v1/users',
         'items': pageList

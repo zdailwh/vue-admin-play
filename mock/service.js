@@ -147,13 +147,12 @@ const logo = {
   'thumb': '/uploads/image/20191106/bca838b15f93fbec194b080d65140a57_thumb.png'
 }
 
-const log = {
-  'id': '@id',
-  'create_time': '2019-11-06 14:45:14',
-  'update_time': '2019-11-06 14:45:16',
-  'msg': 'dlsicksid'
-}
-
+// const log = {
+//   'id': '@id',
+//   'create_time': '2019-11-06 14:45:14',
+//   'update_time': '2019-11-06 14:45:16',
+//   'msg': 'dlsicksid'
+// }
 
 const inputs = Mock.mock({
   'items|5': [input]
@@ -171,58 +170,58 @@ const logos = Mock.mock({
   'items|5': [logo]
 })
 
-const logs = Mock.mock([
-  'log message line 0',
-  'log message line 1',
-  'log message line 2',
-  'log message line 3',
-  'log message line 4',
-  'log message line 5',
-  'log message line 6',
-  'log message line 7',
-  'log message line 8',
-  'log message line 9',
-  'log message line 10',
-  'log message line 11',
-  'log message line 12',
-  'log message line 13',
-  'log message line 14',
-  'log message line 15',
-  'log message line 16',
-  'log message line 17',
-  'log message line 18',
-  'log message line 19',
-  'log message line 20',
-  'log message line 21',
-  'log message line 22',
-  'log message line 23',
-  'log message line 24',
-  'log message line 25',
-  'log message line 26',
-  'log message line 27',
-  'log message line 28',
-  'log message line 29',
-  'log message line 30',
-  'log message line 31',
-  'log message line 32',
-  'log message line 33',
-  'log message line 34',
-  'log message line 35',
-  'log message line 36',
-  'log message line 37',
-  'log message line 38',
-  'log message line 39',
-  'log message line 40',
-  'log message line 41',
-  'log message line 42',
-  'log message line 43',
-  'log message line 44',
-  'log message line 45',
-  'log message line 46',
-  'log message line 47',
-  'log message line 48',
-  'log message line 49'
-])
+// const logs = Mock.mock([
+//   'log message line 0',
+//   'log message line 1',
+//   'log message line 2',
+//   'log message line 3',
+//   'log message line 4',
+//   'log message line 5',
+//   'log message line 6',
+//   'log message line 7',
+//   'log message line 8',
+//   'log message line 9',
+//   'log message line 10',
+//   'log message line 11',
+//   'log message line 12',
+//   'log message line 13',
+//   'log message line 14',
+//   'log message line 15',
+//   'log message line 16',
+//   'log message line 17',
+//   'log message line 18',
+//   'log message line 19',
+//   'log message line 20',
+//   'log message line 21',
+//   'log message line 22',
+//   'log message line 23',
+//   'log message line 24',
+//   'log message line 25',
+//   'log message line 26',
+//   'log message line 27',
+//   'log message line 28',
+//   'log message line 29',
+//   'log message line 30',
+//   'log message line 31',
+//   'log message line 32',
+//   'log message line 33',
+//   'log message line 34',
+//   'log message line 35',
+//   'log message line 36',
+//   'log message line 37',
+//   'log message line 38',
+//   'log message line 39',
+//   'log message line 40',
+//   'log message line 41',
+//   'log message line 42',
+//   'log message line 43',
+//   'log message line 44',
+//   'log message line 45',
+//   'log message line 46',
+//   'log message line 47',
+//   'log message line 48',
+//   'log message line 49'
+// ])
 
 export default [
   {
