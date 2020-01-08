@@ -4,10 +4,10 @@ import { resetRouter } from '@/router'
 import avatar from '@/assets/play/user.jpg'
 
 const state = {
-  token: getToken(),
-  name: '',
+  token: getToken() ? JSON.parse(getToken()) : null,
+  name: getToken() ? JSON.parse(getToken()).username : '',
   avatar: avatar,
-  info: {}
+  info: getToken() ? JSON.parse(getToken()) : {}
 }
 
 const mutations = {
@@ -19,6 +19,9 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_TOKEN: (state, token) => {
+    state.token = token
   }
 }
 
@@ -31,6 +34,7 @@ const actions = {
         const item = response.data
         commit('SET_NAME', item.user.username)
         commit('SET_INFO', item.user)
+        commit('SET_TOKEN', item.user)
         setToken(JSON.stringify(item.user))
         resolve(item)
       }).catch(error => {
@@ -43,12 +47,26 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout().then(() => {
+        commit('SET_NAME', '')
+        commit('SET_INFO', {})
+        commit('SET_TOKEN', null)
         removeToken()
         resetRouter()
         resolve()
       }).catch(error => {
         reject(error)
       })
+    })
+  },
+
+  // remove token
+  resetToken({ commit }) {
+    return new Promise(resolve => {
+      commit('SET_NAME', '')
+      commit('SET_INFO', {})
+      commit('SET_TOKEN', null)
+      removeToken()
+      resolve()
     })
   }
 }
