@@ -16,8 +16,11 @@
             <el-form-item label="" prop="name">
               <el-input v-model="formService.name" placeholder="请输入频道名称" />
             </el-form-item>
-            <el-form-item v-if="channel.status !== 1">
-              <el-button type="warning" @click="onSubmitService('formService')">保存配置</el-button>
+            <el-form-item>
+              <el-button v-if="channel.status !== 1" type="warning" @click="onSubmitService('formService')">保存配置</el-button>
+              <a href="javascript:window.history.go(-1);">
+                <el-button>取消</el-button>
+              </a>
             </el-form-item>
           </el-form>
         </el-card>
@@ -410,6 +413,9 @@
                 <el-form-item label="输出格式" prop="format">
                   <el-input v-model="formOutput.format" placeholder="请输入输出格式" />
                 </el-form-item>
+                <el-form-item label="ts信息" prop="tsinfo">
+                  <el-input v-model="formOutput.tsinfo" placeholder="请输入ts信息" />
+                </el-form-item>
                 <el-form-item label="参数1">
                   <el-col :span="11">
                     <el-input v-model="formOutput.para_name1" placeholder="请输入参数名称" />
@@ -456,6 +462,7 @@
                       <el-form-item label="ID："><span>{{ scope.row.id }}</span></el-form-item>
                       <!-- <el-form-item label="类型："><span>{{ scope.row.type }}</span></el-form-item> -->
                       <el-form-item label="协议："><span>{{ scope.row.protocol }}</span></el-form-item>
+                      <el-form-item label="ts信息："><span>{{ scope.row.tsinfo }}</span></el-form-item>
                       <el-form-item v-if="scope.row.para_name1" label="参数1："><span>{{ scope.row.para_name1 }}：{{ scope.row.para_value1 }}</span></el-form-item>
                       <el-form-item v-if="scope.row.para_name2" label="参数2："><span>{{ scope.row.para_name2 }}：{{ scope.row.para_value2 }}</span></el-form-item>
                       <el-form-item v-if="scope.row.para_name3" label="参数3："><span>{{ scope.row.para_name3 }}：{{ scope.row.para_value3 }}</span></el-form-item>
@@ -496,6 +503,7 @@
                 <p><span>协议：</span>{{ o.protocol }}</p>
                 <p><span>链接地址：</span>{{ o.url }}</p>
                 <p><span>输出格式：</span>{{ o.format }}</p>
+                <p><span>ts信息：</span>{{ o.tsinfo }}</p>
                 <p><span>状态：</span>{{ o.statusstr }}</p>
                 <p v-if="o.para_name1"><span>参数1：</span>{{ o.para_name1 }}：{{ o.para_value1 }}</p>
                 <p v-if="o.para_name2"><span>参数2：</span>{{ o.para_name2 }}：{{ o.para_value2 }}</p>
@@ -577,6 +585,7 @@ export default {
         type: '',
         protocol: '',
         url: '',
+        tsinfo: '',
         para_name1: '',
         para_value1: '',
         para_name2: '',
