@@ -829,9 +829,9 @@ export default {
         })
         this.loading = false
         this.handle = 'view'
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '输入配置添加失败！',
+          message: e.response.data || '输入配置添加失败！',
           type: 'error'
         })
         this.loading = false
@@ -859,9 +859,9 @@ export default {
             message: '删除成功！',
             type: 'success'
           })
-        }).catch(() => {
+        }).catch((e) => {
           this.$message({
-            message: '删除失败！',
+            message: e.response.data || '删除失败！',
             type: 'error'
           })
         })
@@ -886,9 +886,9 @@ export default {
         })
         this.loading = false
         this.handle = 'view'
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '输入配置更新失败！',
+          message: e.response.data || '输入配置更新失败！',
           type: 'error'
         })
         this.loading = false
@@ -907,9 +907,9 @@ export default {
         })
         this.loading = false
         this.handle = 'view'
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '输出配置添加失败！',
+          message: e.response.data || '输出配置添加失败！',
           type: 'error'
         })
         this.loading = false
@@ -937,9 +937,9 @@ export default {
             message: '删除成功！',
             type: 'success'
           })
-        }).catch(() => {
+        }).catch((e) => {
           this.$message({
-            message: '删除失败！',
+            message: e.response.data || '删除失败！',
             type: 'error'
           })
         })
@@ -977,9 +977,9 @@ export default {
         })
         this.loading = false
         this.handle = 'view'
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '输出配置更新失败！',
+          message: e.response.data || '输出配置更新失败！',
           type: 'error'
         })
         this.loading = false
@@ -1039,9 +1039,9 @@ export default {
         this.loading = false
         this.handle = 'view'
         this.$router.push({ path: '/service/index/' + this.formService.type })
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '频道添加失败！',
+          message: e.response.data || '频道添加失败！',
           type: 'error'
         })
         this.loading = false
@@ -1103,9 +1103,9 @@ export default {
         this.loading = false
         this.handle = 'view'
         this.$router.push({ path: '/service/index/' + this.formService.type })
-      }).catch(() => {
+      }).catch((e) => {
         this.$message({
-          message: '频道更新失败！',
+          message: e.response.data || '频道更新失败！',
           type: 'error'
         })
         this.loading = false
@@ -1142,9 +1142,9 @@ export default {
             message: '删除成功！',
             type: 'success'
           })
-        }).catch(() => {
+        }).catch((e) => {
           this.$message({
-            message: '删除失败！',
+            message: e.response.data || '删除失败！',
             type: 'error'
           })
         })

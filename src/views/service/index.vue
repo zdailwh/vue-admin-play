@@ -21,10 +21,10 @@
             </div>
             <!-- <img src="@/assets/play/tb.png" class="logo"> -->
             <div class="opeBtns">
-              <el-button v-if="o.status === 0" size="small" style="color: #67C23A;" :loading="loading === 'start'" @click="changeStatus(index, o.id, 'start')">启动</el-button>
-              <el-button v-if="o.status === 1" size="small" style="color: #F56C6C;" :loading="loading === 'stop'" @click="changeStatus(index, o.id, 'stop')">停止</el-button>
-              <el-button v-if="o.status !== 2" size="small" style="color: #F56C6C;" :loading="loading === 'disable'" @click="changeStatus(index, o.id, 'disable')">禁用</el-button>
-              <el-button v-if="o.status === 2" size="small" style="color: #F56C6C;" :loading="loading === 'enable'" @click="changeStatus(index, o.id, 'enable')">恢复</el-button>
+              <el-button v-if="o.status === 0" size="small" style="color: #67C23A;" :loading="currServiceid === o.id && loading === 'start'" @click="changeStatus(index, o.id, 'start')">启动</el-button>
+              <el-button v-if="o.status === 1" size="small" style="color: #F56C6C;" :loading="currServiceid === o.id && loading === 'stop'" @click="changeStatus(index, o.id, 'stop')">停止</el-button>
+              <el-button v-if="o.status !== 2" size="small" style="color: #F56C6C;" :loading="currServiceid === o.id && loading === 'disable'" @click="changeStatus(index, o.id, 'disable')">禁用</el-button>
+              <el-button v-if="o.status === 2" size="small" style="color: #F56C6C;" :loading="currServiceid === o.id && loading === 'enable'" @click="changeStatus(index, o.id, 'enable')">恢复</el-button>
               <el-button size="small" @click="getLogList(o.id);currChannelId = o.id; logVisible = true">日志</el-button>
               <!-- <el-button size="small" @click="previewurl = o.previewurl; dialogVisible = true;">预览</el-button> -->
               <a v-show="o.type === 0" :href="'/preview.html?previewurl=' + o.previewurl" target="_blank">
@@ -33,7 +33,7 @@
               <router-link :to="'/service/edit/'+o.id">
                 <el-button size="small">编辑</el-button>
               </router-link>
-              <el-button size="small" style="color: #F56C6C;" :disabled="o.status !== 2" :loading="loading === 'delete'" @click="delService(index, o.id)">删除</el-button>
+              <el-button size="small" style="color: #F56C6C;" :disabled="o.status !== 2" :loading="currServiceid === o.id && loading === 'delete'" @click="delService(index, o.id)">删除</el-button>
             </div>
           </div>
         </el-card>
@@ -106,7 +106,8 @@ export default {
       logVisible: false,
       logList: [],
       currChannelId: '',
-      loading: ''
+      loading: '',
+      currServiceid: ''
     }
   },
   computed: {
@@ -147,6 +148,7 @@ export default {
     // },
     changeStatus(index, id, status) {
       if (this.loading !== '') return
+      this.currServiceid = id
       var _this = this
       var params = {
         id: id,
@@ -216,7 +218,7 @@ export default {
     },
     delService(index, id) {
       if (this.loading !== '') return
-
+      this.currServiceid = id
       var params = {
         id: id,
         index: index
