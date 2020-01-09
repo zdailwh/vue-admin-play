@@ -437,6 +437,15 @@ export default [
   },
 
   {
+    url: '/channels/[0-9]',
+    type: 'delete',
+    response: config => {
+      const item = channel
+      return item
+    }
+  },
+
+  {
     url: '/logos',
     type: 'get',
     response: config => {

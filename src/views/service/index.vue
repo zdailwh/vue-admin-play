@@ -21,11 +21,10 @@
             </div>
             <!-- <img src="@/assets/play/tb.png" class="logo"> -->
             <div class="opeBtns">
-              <el-button v-if="o.status === 0" size="small" style="color: #67C23A;" @click="changeStatus(index, o.id, 'start')">启动</el-button>
-              <el-button v-if="o.status === 1" size="small" style="color: #F56C6C;" @click="changeStatus(index, o.id, 'stop')">停止</el-button>
-              <el-button v-if="o.status !== 2" size="small" style="color: #F56C6C;" @click="changeStatus(index, o.id, 'disable')">禁用</el-button>
-              <el-button v-if="o.status === 2" size="small" style="color: #F56C6C;" @click="changeStatus(index, o.id, 'enable')">恢复</el-button>
-              <!-- <el-button size="small" @click="delService(index, o)">删除</el-button> -->
+              <el-button v-if="o.status === 0" size="small" style="color: #67C23A;" :loading="loading === 'start'" @click="changeStatus(index, o.id, 'start')">启动</el-button>
+              <el-button v-if="o.status === 1" size="small" style="color: #F56C6C;" :loading="loading === 'stop'" @click="changeStatus(index, o.id, 'stop')">停止</el-button>
+              <el-button v-if="o.status !== 2" size="small" style="color: #F56C6C;" :loading="loading === 'disable'" @click="changeStatus(index, o.id, 'disable')">禁用</el-button>
+              <el-button v-if="o.status === 2" size="small" style="color: #F56C6C;" :loading="loading === 'enable'" @click="changeStatus(index, o.id, 'enable')">恢复</el-button>
               <el-button size="small" @click="getLogList(o.id);currChannelId = o.id; logVisible = true">日志</el-button>
               <!-- <el-button size="small" @click="previewurl = o.previewurl; dialogVisible = true;">预览</el-button> -->
               <a v-show="o.type === 0" :href="'/preview.html?previewurl=' + o.previewurl" target="_blank">
@@ -34,6 +33,7 @@
               <router-link :to="'/service/edit/'+o.id">
                 <el-button size="small">编辑</el-button>
               </router-link>
+              <el-button size="small" style="color: #F56C6C;" :disabled="o.status !== 2" :loading="loading === 'delete'" @click="delService(index, o.id)">删除</el-button>
             </div>
           </div>
         </el-card>
@@ -106,7 +106,7 @@ export default {
       logVisible: false,
       logList: [],
       currChannelId: '',
-      loading: false
+      loading: ''
     }
   },
   computed: {
@@ -146,7 +146,7 @@ export default {
     //   })
     // },
     changeStatus(index, id, status) {
-      if (this.loading) return
+      if (this.loading !== '') return
       var _this = this
       var params = {
         id: id,
@@ -154,68 +154,94 @@ export default {
       }
       if (status === 'start') {
         // 去启动
-        this.loading = true
+        this.loading = 'start'
         this.$store.dispatch('service/channelStart', params).then(() => {
           Message({
             message: '已启动',
             type: 'success',
-            duration: 5 * 1000,
+            duration: 2 * 1000,
             onClose() {
-              _this.loading = false
+              _this.loading = ''
             }
           })
         }).catch(() => {
-          this.loading = false
+          this.loading = ''
         })
       } else if (status === 'stop') {
         // 去停止
-        this.loading = true
+        this.loading = 'stop'
         this.$store.dispatch('service/channelStop', params).then(() => {
           Message({
             message: '已停止',
             type: 'success',
-            duration: 5 * 1000,
+            duration: 2 * 1000,
             onClose() {
-              _this.loading = false
+              _this.loading = ''
             }
           })
         }).catch(() => {
-          this.loading = false
+          this.loading = ''
         })
       } else if (status === 'disable') {
         // 去禁用
-        this.loading = true
+        this.loading = 'disable'
         this.$store.dispatch('service/channelDisable', params).then(() => {
           Message({
             message: '已禁用',
             type: 'success',
-            duration: 5 * 1000,
+            duration: 2 * 1000,
             onClose() {
-              _this.loading = false
+              _this.loading = ''
             }
           })
         }).catch(() => {
-          this.loading = false
+          this.loading = ''
         })
       } else if (status === 'enable') {
         // 去恢复
-        this.loading = true
+        this.loading = 'enable'
         this.$store.dispatch('service/channelEnable', params).then(() => {
           Message({
             message: '已恢复',
             type: 'success',
-            duration: 5 * 1000,
+            duration: 2 * 1000,
             onClose() {
-              _this.loading = false
+              _this.loading = ''
             }
           })
         }).catch(() => {
-          this.loading = false
+          this.loading = ''
         })
       }
     },
-    delService(index, item) {
-      this.serviceList.splice(index, 1)
+    delService(index, id) {
+      if (this.loading !== '') return
+
+      var params = {
+        id: id,
+        index: index
+      }
+      this.$confirm('确定要删除此频道吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.loading = 'delete'
+        this.$store.dispatch('service/delChannel', params).then(() => {
+          this.$message({
+            message: '删除成功！',
+            type: 'success'
+          })
+          this.loading = ''
+        }).catch(() => {
+          this.$message({
+            message: '删除失败！',
+            type: 'error'
+          })
+          this.loading = ''
+        })
+      }).catch(() => {
+      })
     },
     getLogList(id) {
       this.$store.dispatch('service/getLogs', { id: id }).then((res) => {

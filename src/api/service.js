@@ -135,6 +135,13 @@ export function channelEnable(params) {
   })
 }
 
+export function delChannel(params) {
+  return request({
+    url: '/channels/' + params.id,
+    method: 'delete'
+  })
+}
+
 export function getLogs(params) {
   return request({
     url: '/channels/' + params.id + '/log',
