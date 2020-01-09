@@ -143,7 +143,7 @@
                   <template slot-scope="scope">
                     <el-button-group>
                       <el-button v-show="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click.stop="handleEditInput(scope.$index, scope.row)" />
-                      <!-- <el-button size="mini" type="danger" icon="el-icon-delete" round @click.stop="delInput(scope.$index, scope.row.id)" /> -->
+                      <el-button v-show="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click.stop="delInput(scope.$index, scope.row.id)" />
                     </el-button-group>
                   </template>
                 </el-table-column>
@@ -488,7 +488,7 @@
                   <template slot-scope="scope">
                     <el-button-group>
                       <el-button v-show="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click="handleEditOutput(scope.$index, scope.row)" />
-                      <!-- <el-button size="mini" type="danger" icon="el-icon-delete" round @click="delOutput(scope.$index, scope.row.id)" /> -->
+                      <el-button v-show="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click="delOutput(scope.$index, scope.row.id)" />
                     </el-button-group>
                   </template>
                 </el-table-column>
@@ -838,13 +838,6 @@ export default {
       })
     },
     delInput(index, id) {
-      if (id === this.inputIndex) {
-        this.$message({
-          message: '被选定状态不能删除！',
-          type: 'error'
-        })
-        return false
-      }
       var params = {
         id: id,
         index: index
@@ -916,13 +909,6 @@ export default {
       })
     },
     delOutput(index, id) {
-      if (this.outputIndex.indexOf(id) !== -1) {
-        this.$message({
-          message: '被选定状态不能删除！',
-          type: 'error'
-        })
-        return false
-      }
       var params = {
         id: id,
         index: index
