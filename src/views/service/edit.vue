@@ -454,7 +454,7 @@
               <el-table v-if="outputList && outputList.length" ref="outputTable" :data="outputList" size="small" height="350">
                 <el-table-column label="" width="34">
                   <template slot-scope="scope">
-                    <el-checkbox v-model="outputIndex" :label="scope.row.id" :disabled="channel.type === 0 && scope.row.type === 0" @change="outputChange($event, scope.row)" />
+                    <el-checkbox v-model="outputIndex" :label="scope.row.id" :disabled="(channel.type === 0 && scope.row.type === 0) || (flag === 'edit' && scope.row.used > 0 && scope.row.channel_id !== channel.id)" @change="outputChange($event, scope.row)" />
                   </template>
                 </el-table-column>
                 <el-table-column type="expand">
@@ -1211,6 +1211,7 @@ export default {
     },
     cleanLogo() {
       this.checkedLogo = {}
+      this.formEncode.logo = null
     }
   }
 }
