@@ -172,3 +172,10 @@ export function logoUpload(params) {
     data: params
   })
 }
+
+export function delLogo(params) {
+  return request({
+    url: '/logos/' + params.id,
+    method: 'delete'
+  })
+}

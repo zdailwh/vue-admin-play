@@ -313,6 +313,7 @@
                 <p>
                   <el-button v-if="!v_resolution_w || !v_resolution_h" type="primary" @click="$message({ message: '请选择分辨率！', type: 'error' })">选择台标</el-button>
                   <el-button v-else type="primary" @click="$refs.logoDialog.dialogVisible = true">选择台标</el-button>
+                  <el-button v-show="checkedLogo && checkedLogo.id" type="danger" @click="cleanLogo">取消选择</el-button>
                 </p>
                 <Scale ref="logoScale" :url="checkedLogo.url" :fatherw="v_resolution_w" :fatherh="v_resolution_h" :toppercent="formEncode.top_percent" :leftpercent="formEncode.left_percent" :widthpercent="formEncode.width_percent" :heightpercent="formEncode.height_percent" />
               </el-form-item>
@@ -1120,6 +1121,17 @@ export default {
       this.formEncode.logo = params.logo
     },
     delLogo(params) {
+      // if (params.id === this.checkedLogo.id) {
+      //   this.checkedLogo = {}
+      // }
+      if (this.checkedLogo && this.checkedLogo.id === params.id) {
+        this.$message({
+          message: '此logo已被选中，请先取消选择！',
+          type: 'error'
+        })
+        return
+      }
+
       this.$confirm('确定要删除此logo吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -1138,9 +1150,6 @@ export default {
         })
       }).catch(() => {
       })
-      if (params.logo.id === this.checkedLogo.id) {
-        this.checkedLogo = {}
-      }
     },
     getChannel() {
       this.$store.dispatch('service/getChannel', { id: this.$route.params.sid }).then((response) => {
@@ -1199,6 +1208,9 @@ export default {
           this.output.splice(delIdx, 1)
         }
       }
+    },
+    cleanLogo() {
+      this.checkedLogo = {}
     }
   }
 }

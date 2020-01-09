@@ -1,4 +1,4 @@
-import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs } from '@/api/service'
+import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo } from '@/api/service'
 const state = {
   inputs: [],
   outputs: [],
@@ -339,6 +339,20 @@ const actions = {
     return new Promise((resolve, reject) => {
       getLogs(params).then(response => {
         resolve(response.data)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  delLogo({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      delLogo({ id: params.id }).then(response => {
+        // const item = response.data
+        // state.channels.splice(params.index, 1)
+        // resolve(item)
+        dispatch('getLogos')
+        resolve()
       }).catch(error => {
         console.log(error)
         reject(error)

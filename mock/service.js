@@ -484,5 +484,14 @@ export default [
       const item = logo
       return item
     }
+  },
+
+  {
+    url: '/logos/[0-9]',
+    type: 'delete',
+    response: config => {
+      const item = logo
+      return item
+    }
   }
 ]

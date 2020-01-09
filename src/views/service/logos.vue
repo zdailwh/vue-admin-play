@@ -10,7 +10,7 @@
         <div v-for="(l, index) in logoLists" :key="index" class="imgItem">
           <img :src="l.thumb" @click="checkLogo(index, l)">
           <i v-if="checkedlogo.id && l.id === checkedlogo.id" class="el-icon-circle-check check" />
-          <!-- <i class="el-icon-remove del" @click="delLogo(index, l)" /> -->
+          <i class="el-icon-remove del" @click="delLogo(index, l)" />
         </div>
       </div>
       <Upload @uploadlogo="uploadLogo($event)" />
