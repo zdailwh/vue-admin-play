@@ -67,10 +67,7 @@
                 <el-form-item label="解码格式" prop="decoder">
                   <el-select v-model="formInput.decoder" placeholder="请选择解码格式">
                     <el-option label="PASS" value="" />
-                    <el-option label="HEVC" value="hevc" />
-                    <el-option label="HEVC硬解" value="hevc_cuvid" />
-                    <el-option label="H264" value="h264" />
-                    <el-option label="H264硬解" value="h264_cuvid" />
+                    <el-option v-for="(v, k) in decoder_obj" :key="k" :label="v" :value="k" />
                   </el-select>
                 </el-form-item>
                 <el-form-item label="参数1">
@@ -134,7 +131,8 @@
                   <template slot-scope="scope">{{ scope.row.url }}</template>
                 </el-table-column>
                 <el-table-column label="解码格式">
-                  <template slot-scope="scope">{{ scope.row.decoder }}</template>
+                  <template v-if="scope.row.decoder" slot-scope="scope">{{ decoder_obj[scope.row.decoder] }}</template>
+                  <template v-else>PASS</template>
                 </el-table-column>
                 <el-table-column label="状态">
                   <template slot-scope="scope">{{ scope.row.statusstr }}</template>
@@ -158,7 +156,8 @@
                 <p><span>类型名称：</span>{{ input.typename }}</p>
                 <p><span>协议：</span>{{ input.protocol }}</p>
                 <p><span>链接地址：</span>{{ input.url }}</p>
-                <p><span>解码格式：</span>{{ input.decoder }}</p>
+                <p v-if="input.decoder"><span>解码格式：</span>{{ decoder_obj[input.decoder] }}</p>
+                <p v-else><span>解码格式：</span>PASS</p>
                 <p><span>状态：</span>{{ input.statusstr }}</p>
                 <p v-if="input.para_name1"><span>参数1：</span>{{ input.para_name1 }}：{{ input.para_value1 }}</p>
                 <p v-if="input.para_name2"><span>参数2：</span>{{ input.para_name2 }}：{{ input.para_value2 }}</p>
@@ -181,11 +180,7 @@
             <el-form ref="formEncode" :model="formEncode" label-width="120px" :rules="rules">
               <el-form-item label="视频编码" prop="v_codec">
                 <el-select v-model="formEncode.v_codec" placeholder="请选择视频编码">
-                  <el-option label="PASS" value="copy" />
-                  <el-option label="HEVC" value="libx265" />
-                  <el-option label="HEVC硬编" value="hevc_nvenc" />
-                  <el-option label="H264" value="libx264" />
-                  <el-option label="H264硬编" value="h264_nvenc" />
+                  <el-option v-for="(v, k) in v_codec_obj" :key="k" :label="v" :value="k" />
                 </el-select>
               </el-form-item>
               <el-form-item label="分辨率" prop="v_resolution">
@@ -325,7 +320,7 @@
           </div>
           <div v-show="curr === 'encode' && handle !== 'form'" class="grid-info">
             <div v-if="formEncode && formEncode.v_codec" class="formInfo">
-              <p><span>视频编码：</span>{{ formEncode.v_codec }}</p>
+              <p><span>视频编码：</span>{{ v_codec_obj[formEncode.v_codec] }}</p>
               <p><span>视频宽度：</span>{{ formEncode.v_resolution_w }}</p>
               <p><span>视频高度：</span>{{ formEncode.v_resolution_h }}</p>
               <p><span>视频码率：</span>{{ formEncode.v_bitrate }}</p>
@@ -337,11 +332,11 @@
               <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}</p>
               <p><span>音频码率：</span>{{ formEncode.a_bitrate }}</p>
               <p><span>输出码率：</span>{{ formEncode.muxrate }}</p>
-              <p><span>执行命令：</span>{{ formEncode.command }}</p>
+              <!-- <p><span>执行命令：</span>{{ formEncode.command }}</p>
               <p><span>运行进程：</span>{{ formEncode.pid }}</p>
               <p><span>日志文件：</span>{{ formEncode.logfile }}</p>
               <p><span>预览地址：</span>{{ formEncode.previewurl }}</p>
-              <p><span>日志：</span>{{ formEncode.log }}</p>
+              <p><span>日志：</span>{{ formEncode.log }}</p> -->
               <p><span>状态：</span>{{ formEncode.status }}</p>
               <p><span>台标：</span><img :src="formEncode.logo && formEncode.logo.url"></p>
             </div>
@@ -350,7 +345,7 @@
           </div>
           <div v-show="curr !== 'encode'" class="grid-info">
             <div v-if="formEncode && formEncode.v_codec" class="formInfo">
-              <p><span>视频编码：</span>{{ formEncode.v_codec }}</p>
+              <p><span>视频编码：</span>{{ v_codec_obj[formEncode.v_codec] }}</p>
               <p><span>视频宽度：</span>{{ formEncode.v_resolution_w }}</p>
               <p><span>视频高度：</span>{{ formEncode.v_resolution_h }}</p>
               <p><span>视频码率：</span>{{ formEncode.v_bitrate }}</p>
@@ -362,11 +357,11 @@
               <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}</p>
               <p><span>音频码率：</span>{{ formEncode.a_bitrate }}</p>
               <p><span>输出码率：</span>{{ formEncode.muxrate }}</p>
-              <p><span>执行命令：</span>{{ formEncode.command }}</p>
+              <!-- <p><span>执行命令：</span>{{ formEncode.command }}</p>
               <p><span>运行进程：</span>{{ formEncode.pid }}</p>
               <p><span>日志文件：</span>{{ formEncode.logfile }}</p>
               <p><span>预览地址：</span>{{ formEncode.previewurl }}</p>
-              <p><span>日志：</span>{{ formEncode.log }}</p>
+              <p><span>日志：</span>{{ formEncode.log }}</p> -->
               <p><span>状态：</span>{{ formEncode.status }}</p>
               <p><span>台标：</span><img :src="formEncode.logo && formEncode.logo.url"></p>
             </div>
@@ -476,7 +471,7 @@
                   <template slot-scope="scope">{{ scope.row.typename }}</template>
                 </el-table-column>
                 <el-table-column label="链接地址">
-                  <template slot-scope="scope">{{ scope.row.url }}</template>
+                  <template slot-scope="scope">{{ scope.row.url | formatUrl }}</template>
                 </el-table-column>
                 <el-table-column label="输出格式">
                   <template slot-scope="scope">{{ scope.row.format }}</template>
@@ -502,7 +497,7 @@
                 <!-- <p><span>类型：</span>{{ o.type }}</p> -->
                 <p><span>类型名称：</span>{{ o.typename }}</p>
                 <p><span>协议：</span>{{ o.protocol }}</p>
-                <p><span>链接地址：</span>{{ o.url }}</p>
+                <p><span>链接地址：</span>{{ o.url | formatUrl }}</p>
                 <p><span>输出格式：</span>{{ o.format }}</p>
                 <p><span>ts信息：</span>{{ o.tsinfo }}</p>
                 <p><span>状态：</span>{{ o.statusstr }}</p>
@@ -531,6 +526,13 @@ export default {
     ArrToStr(val) {
       if (val && val.length) {
         return val.join('-')
+      }
+    },
+    formatUrl(val) {
+      if (val.indexOf('?') > 0) {
+        return val.substring(0, val.indexOf('?'))
+      } else {
+        return val
       }
     }
   },
@@ -641,6 +643,20 @@ export default {
         format: [
           { required: true, message: '请输入输出格式', trigger: 'blur' }
         ]
+      },
+      v_codec_obj: {
+        'copy': 'PASS',
+        'libx265': 'HEVC',
+        'hevc_nvenc': 'HEVC硬编',
+        'libx264': 'H264',
+        'h264_nvenc': 'H264硬编'
+      },
+      decoder_obj: {
+        // '': 'PASS',
+        'hevc': 'HEVC',
+        'hevc_cuvid': 'HEVC硬解',
+        'h264': 'H264',
+        'h264_cuvid': 'H264硬解'
       }
     }
   },

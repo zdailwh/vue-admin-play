@@ -17,7 +17,7 @@
             <div style="min-height: 120px;padding: 0 20px;">
               <p>{{ o.input.url }}</p>
               <p>{{ vcodecObj[o.v_codec] }} <span style="margin-left: 20px;">{{ o.v_bitrate }}</span></p>
-              <p v-for="(out, idx) in o.output" :key="idx">{{ out.url }}</p>
+              <p v-for="(out, idx) in o.output" :key="idx">{{ out.url | formatUrl }}</p>
             </div>
             <!-- <img src="@/assets/play/tb.png" class="logo"> -->
             <div class="opeBtns">
@@ -90,6 +90,15 @@ import Player from '@/components/Player'
 
 export default {
   components: { Player },
+  filters: {
+    formatUrl(val) {
+      if (val.indexOf('?') > 0) {
+        return val.substring(0, val.indexOf('?'))
+      } else {
+        return val
+      }
+    }
+  },
   data() {
     return {
       activeTab: '/service/index',
