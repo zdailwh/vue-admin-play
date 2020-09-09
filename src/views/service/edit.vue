@@ -204,7 +204,9 @@
                 </el-col>
               </el-form-item>
               <el-form-item label="视频码率" prop="v_bitrate">
-                <el-input v-model="formEncode.v_bitrate" placeholder="请输入视频码率" />
+                <el-input v-model="formEncode.v_bitrate" placeholder="请输入视频码率">
+                  <template slot="append">kbps</template>
+                </el-input>
               </el-form-item>
               <el-form-item label="视频帧率" prop="v_framerate">
                 <el-select v-model="formEncode.v_framerate" placeholder="请选择视频帧率">
@@ -310,7 +312,7 @@
                   <el-button v-else type="primary" @click="$refs.logoDialog.dialogVisible = true">选择台标</el-button>
                   <el-button v-show="checkedLogo && checkedLogo.id" type="danger" @click="cleanLogo">取消选择</el-button>
                 </p>
-                <Scale ref="logoScale" :url="checkedLogo.url" :fatherw="v_resolution_w" :fatherh="v_resolution_h" :toppercent="formEncode.top_percent" :leftpercent="formEncode.left_percent" :widthpercent="formEncode.width_percent" :heightpercent="formEncode.height_percent" />
+                <Scale ref="logoScale" :url="checkedLogo.url || ''" :fatherw="v_resolution_w" :fatherh="v_resolution_h" :toppercent="formEncode.top_percent" :leftpercent="formEncode.left_percent" :widthpercent="formEncode.width_percent" :heightpercent="formEncode.height_percent" />
               </el-form-item>
               <el-form-item>
                 <el-button type="warning" @click="onSubmitEncode('formEncode')">确定</el-button>
@@ -1121,6 +1123,8 @@ export default {
     checkLogo(params) {
       this.checkedLogo = params.logo
       this.formEncode.logo = params.logo
+      this.formEncode.width_percent = 0
+      this.formEncode.height_percent = 0
     },
     delLogo(params) {
       // if (params.id === this.checkedLogo.id) {
@@ -1214,6 +1218,8 @@ export default {
     cleanLogo() {
       this.checkedLogo = {}
       this.formEncode.logo = null
+      this.formEncode.width_percent = 0
+      this.formEncode.height_percent = 0
     }
   }
 }

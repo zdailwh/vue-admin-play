@@ -2,32 +2,54 @@
   <el-row :gutter="0">
     <el-col v-show="url !== ''" :span="24">
       <el-form :model="formLogo" label-width="120px">
-        <!-- <el-form-item label="大小(%)">
-          <el-slider v-model="formLogo.size" show-input />
-        </el-form-item>
-        <el-form-item label="透明度(%)">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="缩放比例(%)">
+              <el-slider v-model="formLogo.size" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="宽度(px)">
+              <el-input-number v-model="formLogo.width" size="small" :precision="0" style="width: 120px" @blur="widthBlur" @change="widthChange" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="高度(px)">
+              <el-input-number v-model="formLogo.height" size="small" :precision="0" style="width: 120px" @blur="heightBlur" @change="heightChange" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="上边距(px)">
+              <el-input-number v-model="formLogo.top" size="small" style="width: 120px" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="左边距(px)">
+              <el-input-number v-model="formLogo.left" size="small" style="width: 120px" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <!-- <el-form-item label="透明度(%)">
           <el-slider v-model="formLogo.opacity" show-input />
         </el-form-item> -->
-        <el-form-item label="距离上边缘(px)">
-          <el-input v-model="formLogo.top" style="width: 100px" />
-        </el-form-item>
-        <el-form-item label="距离左边缘(px)">
-          <el-input v-model="formLogo.left" style="width: 100px" />
-        </el-form-item>
       </el-form>
     </el-col>
     <el-col :span="24">
       <div id="father">
         <div id="box">
           <img id="logo" src="">
-          <!-- <div id="scale" /> -->
+          <!-- <div v-show="url" id="scale" /> -->
         </div>
       </div>
     </el-col>
   </el-row>
 </template>
 <script>
-// import tb from '@/assets/play/tb.png'
+// import tb from '@/assets/play/tbx5.png'
 export default {
   props: {
     url: {
@@ -36,19 +58,19 @@ export default {
     },
     fatherw: {
       type: String,
-      default: '1920'
+      default: ''
     },
     fatherh: {
       type: String,
-      default: '1080'
+      default: ''
     },
     leftpercent: {
       type: Number,
-      default: 50
+      default: 0
     },
     toppercent: {
       type: Number,
-      default: 50
+      default: 0
     },
     widthpercent: {
       type: Number,
@@ -70,73 +92,45 @@ export default {
         opacity: 100,
         left: 0,
         top: 0
-      }
+      },
+      logoOriginW: 0,
+      logoOriginH: 0
     }
   },
   watch: {
-    // 'formLogo.size': function(val, oldVal) {
-    //   var fa = document.getElementById('father')
-    //   var box = document.getElementById('box')
-    //   box.style.width = fa.offsetWidth * val / 100 + 'px'
-    //   box.style.height = fa.offsetWidth * val / 100 / this.WHRatio + 'px'
-    // },
+    'formLogo.size': function(val, oldVal) {
+      var box = document.getElementById('box')
+      var logo = document.getElementById('logo')
+
+      logo.style.width = this.logoOriginW * val / 100 / this.scaleRatio + 'px'
+      logo.style.height = this.logoOriginH * val / 100 / this.scaleRatio + 'px'
+      box.style.width = this.logoOriginW * val / 100 / this.scaleRatio + 'px'
+      box.style.height = this.logoOriginH * val / 100 / this.scaleRatio + 'px'
+      this.formLogo.width = this.logoOriginW * val / 100
+      this.formLogo.height = this.logoOriginH * val / 100
+    },
     'formLogo.opacity': function(val, oldVal) {
       var logo = document.getElementById('logo')
       logo.style.opacity = val / 100
     },
     'formLogo.left': function(val, oldVal) {
       var box = document.getElementById('box')
-      // box.style.left = val + 'px'
       box.style.left = val / this.scaleRatio + 'px'
     },
     'formLogo.top': function(val, oldVal) {
       var box = document.getElementById('box')
-      // box.style.top = val + 'px'
       box.style.top = val / this.scaleRatio + 'px'
     },
     url: function(val, oldVal) {
-      var self = this
-      var logo = document.getElementById('logo')
-      logo.setAttribute('src', val)
-      logo.onload = function(ev) {
-        var w = ev.target.width
-        var h = ev.target.height
-        self.formLogo.width = w
-        self.formLogo.height = h
-        self.WHRatio = w / h
-        // self.formLogo.size = 100
-        // logo.style.width = w / self.scaleRatio + 'px'
-        // logo.style.height = h / self.scaleRatio + 'px'
-        self.formLogo.top = 50
-        self.formLogo.left = 50
-      }
+      this.initLogo(val)
+    },
+    fatherw: function(val, oldVal) {
+      this.initScaleRatio(val)
+    },
+    fatherh: function(val, oldVal) {
+      var fa = document.getElementById('father')
+      fa.style.height = val / this.scaleRatio + 'px'
     }
-    // fatherw: function(val, oldVal) {
-    //   var fa = document.getElementById('father')
-    //   if (val < 1000) {
-    //     this.scaleRatio = 2
-    //   }
-    //   if (val > 1000) {
-    //     this.scaleRatio = 5
-    //   }
-    //   if (val > 2000) {
-    //     this.scaleRatio = 10
-    //   }
-    //   if (val > 3000) {
-    //     this.scaleRatio = 15
-    //   }
-    //   if (val > 4000) {
-    //     this.scaleRatio = 20
-    //   }
-    //   if (val > 7000) {
-    //     this.scaleRatio = 30
-    //   }
-    //   fa.style.width = val / this.scaleRatio + 'px'
-    // },
-    // fatherh: function(val, oldVal) {
-    //   var fa = document.getElementById('father')
-    //   fa.style.height = val / this.scaleRatio + 'px'
-    // }
   },
   mounted() {
     var self = this
@@ -144,23 +138,13 @@ export default {
     var box = document.getElementById('box')
     var fa = document.getElementById('father')
     // var scale = document.getElementById('scale')
-    var logo = document.getElementById('logo')
-    // fa.style.height = fa.offsetWidth * 9 / 16 + 'px'
-    // fa.style.width = this.fatherw + 'px'
-    // fa.style.height = this.fatherh + 'px'
-    logo.setAttribute('src', this.url)
-    logo.onload = function(ev) {
-      var w = ev.target.width
-      var h = ev.target.height
-      self.formLogo.width = self.widthpercent || w
-      self.formLogo.height = self.heightpercent || h
-      self.WHRatio = w / h
-      // self.formLogo.size = 100
-      // logo.style.width = (self.widthpercent || w) / self.scaleRatio + 'px'
-      // logo.style.height = (self.heightpercent || h) / self.scaleRatio + 'px'
-      self.formLogo.top = self.toppercent || 50
-      self.formLogo.left = self.leftpercent || 50
-    }
+    // var logo = document.getElementById('logo')
+
+    this.initScaleRatio(this.fatherw)
+    fa.style.height = this.fatherh / this.scaleRatio + 'px'
+
+    this.initLogo(this.url)
+
     // 图片移动效果
     box.onmousedown = function(ev) {
       var oEvent = ev
@@ -168,24 +152,20 @@ export default {
       oEvent.preventDefault()
       var disX = oEvent.clientX - box.offsetLeft
       var disY = oEvent.clientY - box.offsetTop
+
       fa.onmousemove = function(ev) {
-        oEvent = ev
-        oEvent.preventDefault()
-        var x = oEvent.clientX - disX
-        var y = oEvent.clientY - disY
+        ev.preventDefault()
+        var x = (ev.clientX - disX) * self.scaleRatio
+        var y = (ev.clientY - disY) * self.scaleRatio
 
         // 图形移动的边界判断
         x = x <= 0 ? 0 : x
-        x = x >= fa.offsetWidth - box.offsetWidth ? fa.offsetWidth - box.offsetWidth : x
+        // x = x >= fa.offsetWidth - box.offsetWidth ? fa.offsetWidth - box.offsetWidth : x
         y = y <= 0 ? 0 : y
-        y = y >= fa.offsetHeight - box.offsetHeight ? fa.offsetHeight - box.offsetHeight : y
-        // box.style.left = x + 'px'
-        // box.style.top = y + 'px'
+        // y = y >= fa.offsetHeight - box.offsetHeight ? fa.offsetHeight - box.offsetHeight : y
 
         self.formLogo.left = x
         self.formLogo.top = y
-        // self.formLogo.top = y / self.scaleRatio
-        // self.formLogo.left = x / self.scaleRatio
       }
       // 图形移出父盒子取消移动事件,防止移动过快触发鼠标移出事件,导致鼠标弹起事件失效
       fa.onmouseleave = function() {
@@ -231,6 +211,85 @@ export default {
     //     fa.onmouseup = null
     //   }
     // }
+  },
+  methods: {
+    initScaleRatio(val) {
+      var fa = document.getElementById('father')
+      if (val < 1000) {
+        this.scaleRatio = 1.5
+      }
+      if (val > 1000) {
+        this.scaleRatio = 3
+      }
+      if (val > 2000) {
+        this.scaleRatio = 5
+      }
+      if (val > 3000) {
+        this.scaleRatio = 8
+      }
+      if (val > 4000) {
+        this.scaleRatio = 12
+      }
+      if (val > 7000) {
+        this.scaleRatio = 15
+      }
+      fa.style.width = val / this.scaleRatio + 'px'
+
+      var box = document.getElementById('box')
+      var logo = document.getElementById('logo')
+      logo.style.width = this.logoOriginW * this.formLogo.size / 100 / this.scaleRatio + 'px'
+      logo.style.height = this.logoOriginH * this.formLogo.size / 100 / this.scaleRatio + 'px'
+      box.style.width = this.logoOriginW * this.formLogo.size / 100 / this.scaleRatio + 'px'
+      box.style.height = this.logoOriginH * this.formLogo.size / 100 / this.scaleRatio + 'px'
+      box.style.left = this.formLogo.left / this.scaleRatio + 'px'
+      box.style.top = this.formLogo.top / this.scaleRatio + 'px'
+      this.formLogo.width = this.logoOriginW * this.formLogo.size / 100
+      this.formLogo.height = this.logoOriginH * this.formLogo.size / 100
+    },
+    initLogo(url) {
+      var self = this
+      var box = document.getElementById('box')
+      var logo = document.getElementById('logo')
+      logo.setAttribute('src', url)
+      logo.onload = function(ev) {
+        var w = logo.naturalWidth || logo.width
+        var h = logo.naturalHeight || logo.height
+
+        self.logoOriginW = w
+        self.logoOriginH = h
+
+        // self.WHRatio = w / h
+        self.formLogo.size = parseInt(self.widthpercent / w * 100) || 100
+        self.formLogo.top = self.toppercent || 0
+        self.formLogo.left = self.leftpercent || 0
+        logo.style.width = (self.widthpercent || w) * self.formLogo.size / 100 / self.scaleRatio + 'px'
+        logo.style.height = (self.heightpercent || h) * self.formLogo.size / 100 / self.scaleRatio + 'px'
+        box.style.width = (self.widthpercent || w) * self.formLogo.size / 100 / self.scaleRatio + 'px'
+        box.style.height = (self.heightpercent || h) * self.formLogo.size / 100 / self.scaleRatio + 'px'
+        self.formLogo.width = self.logoOriginW * self.formLogo.size / 100
+        self.formLogo.height = self.logoOriginH * self.formLogo.size / 100
+      }
+    },
+    widthBlur(e) {
+      var w = e.target.value || this.logoOriginW
+      this.formLogo.width = w
+      this.formLogo.size = parseInt(w / this.logoOriginW * 100)
+    },
+    heightBlur(e) {
+      var h = e.target.value || this.logoOriginH
+      this.formLogo.width = h
+      this.formLogo.size = parseInt(h / this.logoOriginH * 100)
+    },
+    widthChange(val, oldVal) {
+      var w = val || this.logoOriginW
+      this.formLogo.width = w
+      this.formLogo.size = parseInt(w / this.logoOriginW * 100)
+    },
+    heightChange(val, oldVal) {
+      var h = val || this.logoOriginH
+      this.formLogo.width = h
+      this.formLogo.size = parseInt(h / this.logoOriginH * 100)
+    }
   }
 }
 </script>
@@ -241,7 +300,8 @@ export default {
     position: absolute;
   }
   #father {
-    background-color: rgb(226, 117, 184);
+    background: url(../../assets/play/bg1.jpg) no-repeat scroll center;
+    background-size: cover;
     position: relative;
     width: 400px;
     height: 250px;
@@ -250,6 +310,7 @@ export default {
     /*width: 100%;*/
     height: auto;
     cursor: move;
+    display: block;
   }
   #scale {
     width: 10px;
