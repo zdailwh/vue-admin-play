@@ -179,3 +179,19 @@ export function delLogo(params) {
     method: 'delete'
   })
 }
+
+export function getNetworks(params) {
+  return request({
+    url: '/configs/network',
+    method: 'get',
+    params
+  })
+}
+
+export function updateNetwork(params) {
+  return request({
+    url: '/configs/network/' + params.name,
+    method: 'put',
+    data: params
+  })
+}

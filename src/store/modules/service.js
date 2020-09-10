@@ -1,11 +1,12 @@
-import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo } from '@/api/service'
+import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo, getNetworks, updateNetwork } from '@/api/service'
 const state = {
   inputs: [],
   outputs: [],
   channels: [],
   channel: {},
   logos: [],
-  type: 0
+  type: 0,
+  networks: []
 }
 
 const getters = {
@@ -47,6 +48,9 @@ const mutations = {
   },
   SET_LOGOS: (state, logos) => {
     state.logos = logos
+  },
+  SET_NETWORKS: (state, networks) => {
+    state.networks = networks
   }
 }
 
@@ -353,6 +357,30 @@ const actions = {
         // resolve(item)
         dispatch('getLogos')
         resolve()
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  getNetworks({ commit }) {
+    return new Promise((resolve, reject) => {
+      getNetworks({ per_page: 100 }).then(response => {
+        const items = response.data || []
+        commit('SET_NETWORKS', items)
+        resolve()
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  updateNetwork({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      updateNetwork(params).then(response => {
+        const item = response.data
+        dispatch('getNetworks')
+        resolve(item)
       }).catch(error => {
         console.log(error)
         reject(error)
