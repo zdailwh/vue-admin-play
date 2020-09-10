@@ -107,7 +107,7 @@
               <el-table v-if="inputList && inputList.length" ref="inputTable" :data="inputList" size="small" height="350">
                 <el-table-column label="" width="34">
                   <template slot-scope="scope">
-                    <el-radio v-model="inputIndex" :label="scope.row.id" :disabled="(channel.type === 1 && scope.row.type === 0)" @change="inputChange(scope.row)" />
+                    <el-radio v-model="inputIndex" :label="scope.row.id" :disabled="(channel.type === 1 && scope.row.type === 0) || (flag === 'edit' && scope.row.used > 0 && scope.row.id !== channel.input.id)" @change="inputChange(scope.row)" />
                   </template>
                 </el-table-column>
                 <el-table-column type="expand">
@@ -140,8 +140,8 @@
                 <el-table-column label="操作" width="110" fixed="right">
                   <template slot-scope="scope">
                     <el-button-group>
-                      <el-button v-show="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click.stop="handleEditInput(scope.$index, scope.row)" />
-                      <el-button v-show="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click.stop="delInput(scope.$index, scope.row.id)" />
+                      <el-button v-if="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click.stop="handleEditInput(scope.$index, scope.row)" />
+                      <el-button v-if="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click.stop="delInput(scope.$index, scope.row.id)" />
                     </el-button-group>
                   </template>
                 </el-table-column>
@@ -451,7 +451,7 @@
               <el-table v-if="outputList && outputList.length" ref="outputTable" :data="outputList" size="small" height="350">
                 <el-table-column label="" width="34">
                   <template slot-scope="scope">
-                    <el-checkbox v-model="outputIndex" :label="scope.row.id" :disabled="(channel.type === 0 && scope.row.type === 0)" @change="outputChange($event, scope.row)" />
+                    <el-checkbox v-model="outputIndex" :label="scope.row.id" :disabled="(channel.type === 0 && scope.row.type === 0) || (flag === 'edit' && scope.row.used > 0 && outputIndex.indexOf(scope.row.id) === -1)" @change="outputChange($event, scope.row)" />
                   </template>
                 </el-table-column>
                 <el-table-column type="expand">
@@ -484,8 +484,8 @@
                 <el-table-column label="操作" width="110" fixed="right">
                   <template slot-scope="scope">
                     <el-button-group>
-                      <el-button v-show="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click="handleEditOutput(scope.$index, scope.row)" />
-                      <el-button v-show="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click="delOutput(scope.$index, scope.row.id)" />
+                      <el-button v-if="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click="handleEditOutput(scope.$index, scope.row)" />
+                      <el-button v-if="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click="delOutput(scope.$index, scope.row.id)" />
                     </el-button-group>
                   </template>
                 </el-table-column>

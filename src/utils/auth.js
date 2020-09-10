@@ -1,27 +1,27 @@
-// import Cookies from 'js-cookie'
+import Cookies from 'js-cookie'
 
 const TokenKey = 'ffmpeg_token'
 
-// export function getToken() {
-//   return Cookies.get(TokenKey)
-// }
-
-// export function setToken(token) {
-//   return Cookies.set(TokenKey, token)
-// }
-
-// export function removeToken() {
-//   return Cookies.remove(TokenKey)
-// }
-
 export function getToken() {
-  return window.localStorage.getItem(TokenKey)
+  return Cookies.get(TokenKey)
 }
 
 export function setToken(token) {
-  return window.localStorage.setItem(TokenKey, token)
+  return Cookies.set(TokenKey, token)
 }
 
 export function removeToken() {
-  return window.localStorage.removeItem(TokenKey)
+  return Cookies.remove(TokenKey)
 }
+
+// export function getToken() {
+//   return window.localStorage.getItem(TokenKey)
+// }
+
+// export function setToken(token) {
+//   return window.localStorage.setItem(TokenKey, token)
+// }
+
+// export function removeToken() {
+//   return window.localStorage.removeItem(TokenKey)
+// }

@@ -101,12 +101,12 @@ export const constantRoutes = [
     meta: { title: 'Encoder', icon: 'list' },
     hidden: false
   },
-  {
-    path: '/service/index/1',
-    redirect: '/service/index/:type',
-    meta: { title: 'Decoder', icon: 'list' },
-    hidden: false
-  },
+  // {
+  //   path: '/service/index/1',
+  //   redirect: '/service/index/:type',
+  //   meta: { title: 'Decoder', icon: 'list' },
+  //   hidden: false
+  // },
   {
     path: '/service/add',
     name: 'ServiceAdd',

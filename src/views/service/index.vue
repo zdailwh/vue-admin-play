@@ -17,7 +17,16 @@
             <div style="min-height: 120px;padding: 0 20px;">
               <p>{{ o.input.url }}</p>
               <p>{{ vcodecObj[o.v_codec] }} <span style="margin-left: 20px;">{{ o.v_bitrate }}</span></p>
-              <p v-for="(out, idx) in o.output" :key="idx">{{ out.url | formatUrl }}</p>
+              <el-popover
+                placement="top"
+                width="526"
+                trigger="hover"
+              >
+                <el-table :data="o.output">
+                  <el-table-column width="500" property="url" label="链接地址" />
+                </el-table>
+                <el-button slot="reference" type="text">输出设备</el-button>
+              </el-popover>
             </div>
             <!-- <img src="@/assets/play/tb.png" class="logo"> -->
             <div class="opeBtns">
@@ -38,13 +47,13 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <!-- <el-col :span="6">
         <el-card :body-style="{ padding: '0px' }" class="cardPlus">
           <router-link to="/service/add">
             <i class="el-icon-plus" /> 添加service
           </router-link>
         </el-card>
-      </el-col>
+      </el-col> -->
     </el-row>
 
     <el-dialog
