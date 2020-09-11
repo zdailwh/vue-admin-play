@@ -10,7 +10,7 @@
             <el-form-item label="" prop="type" :disabled="flag === 'edit'">
               <el-select v-model="formService.type" placeholder="请选择类型">
                 <el-option label="编码器" :value="0" />
-                <el-option label="解码器" :value="1" />
+                <!-- <el-option label="解码器" :value="1" /> -->
               </el-select>
             </el-form-item>
             <el-form-item label="" prop="name">

@@ -7,7 +7,7 @@
         <el-tab-pane label="Settings" name="/service/settings" />
       </el-tabs>
     </div>
-    <div v-show="status.mem.used">
+    <div v-show="status.cpu && status.cpu.used && status.mem && status.mem.used">
       <el-row :gutter="20">
         <el-col :span="8" style="margin-bottom:15px;">
           <el-card :body-style="{ padding: '0px', paddingTop: '15px', textAlign: 'center' }">
@@ -35,6 +35,12 @@
 <script>
 import { mapState } from 'vuex'
 export default {
+  beforeRouteLeave(to, from, next) {
+    // 导航离开该组件的对应路由时调用
+    // 可以访问组件实例 `this`
+    window.clearInterval(window.timer)
+    next()
+  },
   filters: {
     getColor(percentage) {
       if (percentage >= 80) {
@@ -55,6 +61,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       activeTab: '/service/status'
       // 运行时间，CPU使用率，内存 （总数、已用）大小
       // status: {
@@ -84,12 +91,19 @@ export default {
   },
   mounted() {
     this.getStatus()
+    var self = this
+    window.timer = window.setInterval(function() {
+      self.getStatus()
+    }, 1000)
   },
   methods: {
     getStatus() {
+      if (this.loading) return
+      this.loading = true
       this.$store.dispatch('service/getStatus').then(() => {
-        console.log(this.$store.state.service.status)
+        this.loading = false
       }).catch(() => {
+        this.loading = false
       })
     }
   }
