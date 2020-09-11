@@ -217,3 +217,41 @@ export function getStatus(params) {
     params
   })
 }
+
+export function getParams(params) {
+  return request({
+    url: '/params',
+    method: 'get',
+    params
+  })
+}
+
+export function addParam(params) {
+  return request({
+    url: '/params',
+    method: 'post',
+    data: params
+  })
+}
+
+export function getParam(params) {
+  return request({
+    url: '/params/' + params.id,
+    method: 'get'
+  })
+}
+
+export function updateParam(params) {
+  return request({
+    url: '/params/' + params.id,
+    method: 'put',
+    data: params
+  })
+}
+
+export function delParam(params) {
+  return request({
+    url: '/params/' + params.id,
+    method: 'delete'
+  })
+}

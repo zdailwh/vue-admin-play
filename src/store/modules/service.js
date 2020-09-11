@@ -1,7 +1,8 @@
-import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo, getNetworks, updateNetwork, networkEnable, networkDisable, getStatus } from '@/api/service'
+import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo, getNetworks, updateNetwork, networkEnable, networkDisable, getStatus, getParams, addParam, getParam, updateParam, delParam } from '@/api/service'
 const state = {
   inputs: [],
   outputs: [],
+  params: [],
   channels: [],
   channel: {},
   logos: [],
@@ -40,6 +41,9 @@ const mutations = {
   },
   SET_OUTPUTS: (state, outputs) => {
     state.outputs = outputs
+  },
+  SET_PARAMS: (state, params) => {
+    state.params = params
   },
   SET_CHANNELS: (state, channels) => {
     state.channels = channels
@@ -188,6 +192,72 @@ const actions = {
         // state.outputs.splice(params.index, 1)
         // resolve(item)
         dispatch('getOutputs')
+        resolve()
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  getParams({ commit }) {
+    return new Promise((resolve, reject) => {
+      getParams({ per_page: 100 }).then(response => {
+        const items = response.data.items || []
+        commit('SET_PARAMS', items.reverse())
+        resolve(items)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  addParam({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      addParam(params).then(response => {
+        // const item = response.data
+        // commit('SET_PARAMS', state.params.concat([item]))
+        // resolve(response.data)
+        dispatch('getParams')
+        resolve()
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  getParam({ state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      getParam({ id: params.id }).then(response => {
+        const item = response.data
+        state.params.splice(params.index, 1, item)
+        resolve(item)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  updateParam({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      updateParam(params).then(response => {
+        // const item = response.data
+        // state.params.splice(params.index, 1, item)
+        // resolve(item)
+        dispatch('getParams')
+        resolve()
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  delParam({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      delParam({ id: params.id }).then(response => {
+        // const item = response.data
+        // state.params.splice(params.index, 1)
+        // resolve(item)
+        dispatch('getParams')
         resolve()
       }).catch(error => {
         console.log(error)
