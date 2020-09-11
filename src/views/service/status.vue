@@ -55,7 +55,7 @@ export default {
   },
   data() {
     return {
-      activeTab: '/service/status',
+      activeTab: '/service/status'
       // 运行时间，CPU使用率，内存 （总数、已用）大小
       // status: {
       //   uptime: '3 days, 23:42',

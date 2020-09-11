@@ -371,6 +371,9 @@ const actions = {
     return new Promise((resolve, reject) => {
       getNetworks({ per_page: 100 }).then(response => {
         const items = response.data || []
+        items.forEach(function(item, idx, array) {
+          array[idx].dnsArr = item.dns.length ? item.dns.split(',') : []
+        })
         commit('SET_NETWORKS', items)
         resolve()
       }).catch(error => {

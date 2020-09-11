@@ -16,7 +16,11 @@
         <el-table-column prop="ip" label="IP" width="150" />
         <el-table-column prop="netmask" label="netmask" width="150" />
         <el-table-column prop="gateway" label="网关" width="150" />
-        <el-table-column prop="dns" label="DNS" />
+        <el-table-column prop="dns" label="DNS">
+          <template slot-scope="scope">
+            <p v-for="(item, k) in scope.row.dnsArr" :key="k">{{ item }}</p>
+          </template>
+        </el-table-column>
         <el-table-column prop="on" label="状态">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.on" type="success">启用</el-tag>
@@ -45,7 +49,26 @@
           <el-input v-model="editForm.gateway" autocomplete="off" />
         </el-form-item>
         <el-form-item label="DNS">
-          <el-input v-model="editForm.dns" autocomplete="off" />
+          <!-- <el-input v-model="editForm.dns" autocomplete="off" /> -->
+          <el-tag
+            v-for="tag in dnsArr"
+            :key="tag"
+            closable
+            :disable-transitions="false"
+            @close="delDns(tag)"
+          >
+            {{ tag }}
+          </el-tag>
+          <el-input
+            v-if="taginputVisible"
+            ref="saveTagInput"
+            v-model="taginputValue"
+            class="input-new-tag"
+            size="small"
+            @keyup.enter.native="handleInputConfirm"
+            @blur="handleInputConfirm"
+          />
+          <el-button v-else class="button-new-tag" size="small" @click="showInput">+添加</el-button>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -66,7 +89,10 @@ export default {
       loading: false,
       activeTab: '/service/settings',
       showEdit: false,
-      editForm: {}
+      editForm: {},
+      dnsArr: [],
+      taginputVisible: false,
+      taginputValue: ''
     }
   },
   computed: {
@@ -90,7 +116,16 @@ export default {
       })
     },
     toEdit(item) {
+      // var item = {
+      //   name: 'enp3s0f0',
+      //   ip: '192.168.5.101',
+      //   netmask: '255.255.255.0',
+      //   gateway: '',
+      //   dns: '',
+      //   on: 1
+      // }
       this.editForm = item
+      this.dnsArr = item.dns.length ? item.dns.split(',') : []
       this.showEdit = true
     },
     doEdit() {
@@ -99,7 +134,7 @@ export default {
         ip: this.editForm.ip,
         netmask: this.editForm.netmask,
         gateway: this.editForm.gateway,
-        dns: this.editForm.dns
+        dns: this.dnsArr.join(',') || ''
       }
       console.log(params)
       if (this.loading) return
@@ -183,6 +218,26 @@ export default {
       }).catch(() => {
         this.loading = false
       })
+    },
+
+    delDns(tag) {
+      this.dnsArr.splice(this.dnsArr.indexOf(tag), 1)
+    },
+
+    showInput() {
+      this.taginputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+
+    handleInputConfirm() {
+      var inputValue = this.taginputValue
+      if (inputValue) {
+        this.dnsArr.push(inputValue)
+      }
+      this.taginputVisible = false
+      this.taginputValue = ''
     }
   }
 }
@@ -191,6 +246,21 @@ export default {
 <style scoped>
 .dashboard-container {
   padding: 0 20px;
+}
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+.button-new-tag {
+  margin-left: 10px;
+  height: 32px;
+  line-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.input-new-tag {
+  width: 140px;
+  margin-left: 10px;
+  vertical-align: bottom;
 }
 </style>
 
