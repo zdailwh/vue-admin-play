@@ -13,7 +13,7 @@ export default {
   },
   mounted() {
     var videoUrl = this.previewurl
-    var demo = 'rtmp://aliplay.evereasycom.cn/cibn_live_2500k/malasong?auth_key=1605085670-0-0-7256bc52eb5ec875badba49481caca93'
+    // var demo = 'rtmp://aliplay.evereasycom.cn/cibn_live_2500k/malasong?auth_key=1605085670-0-0-7256bc52eb5ec875badba49481caca93'
     var player = new TcPlayer('id_test_video', {
       rtmp: videoUrl, // 请替换成实际可用的播放地址
       autoplay: true, // iOS 下 safari 浏览器，以及大部分移动端浏览器是不开放视频自动播放这个能力的

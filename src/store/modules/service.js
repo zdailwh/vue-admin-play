@@ -1,4 +1,4 @@
-import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo, getNetworks, updateNetwork } from '@/api/service'
+import { getInputs, getOutputs, addInput, addOutput, getInput, updateInput, delInput, getOutput, updateOutput, delOutput, getChannels, getChannel, addChannel, updateChannel, channelStart, channelStop, channelDisable, channelEnable, delChannel, getLogos, addLogo, logoUpload, getLogs, delLogo, getNetworks, updateNetwork, networkEnable, networkDisable, getStatus } from '@/api/service'
 const state = {
   inputs: [],
   outputs: [],
@@ -6,7 +6,8 @@ const state = {
   channel: {},
   logos: [],
   type: 0,
-  networks: []
+  networks: [],
+  status: {}
 }
 
 const getters = {
@@ -51,6 +52,9 @@ const mutations = {
   },
   SET_NETWORKS: (state, networks) => {
     state.networks = networks
+  },
+  SET_STATUS: (state, status) => {
+    state.status = status
   }
 }
 
@@ -381,6 +385,44 @@ const actions = {
         const item = response.data
         dispatch('getNetworks')
         resolve(item)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  networkEnable({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      networkEnable({ name: params.name }).then(response => {
+        const item = response.data
+        // state.networks.splice(params.index, 1, item)
+        dispatch('getNetworks')
+        resolve(item)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  networkDisable({ dispatch, state, commit }, params) {
+    return new Promise((resolve, reject) => {
+      networkDisable({ name: params.name }).then(response => {
+        const item = response.data
+        // state.networks.splice(params.index, 1, item)
+        dispatch('getNetworks')
+        resolve(item)
+      }).catch(error => {
+        console.log(error)
+        reject(error)
+      })
+    })
+  },
+  getStatus({ commit }) {
+    return new Promise((resolve, reject) => {
+      getStatus({ per_page: 100 }).then(response => {
+        const items = response.data || {}
+        commit('SET_STATUS', items)
+        resolve()
       }).catch(error => {
         console.log(error)
         reject(error)

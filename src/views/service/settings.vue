@@ -12,12 +12,22 @@
         :data="networks"
         style="width: 100%"
       >
-        <el-table-column prop="name" label="网卡" width="180" />
-        <el-table-column prop="ip" label="IP" width="180" />
-        <el-table-column prop="netmask" label="netmask" width="180" />
+        <el-table-column prop="name" label="网卡" width="150" />
+        <el-table-column prop="ip" label="IP" width="150" />
+        <el-table-column prop="netmask" label="netmask" width="150" />
+        <el-table-column prop="gateway" label="网关" width="150" />
+        <el-table-column prop="dns" label="DNS" />
+        <el-table-column prop="on" label="状态">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.on" type="success">启用</el-tag>
+            <el-tag v-else type="danger">禁用</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" circle @click="toEdit(scope.row)" />
+            <el-button type="primary" size="small" :disabled="!scope.row.on" @click="toEdit(scope.row)">编辑</el-button>
+            <el-button v-if="!scope.row.on" type="success" size="small" @click="enable(scope.row)">启用</el-button>
+            <el-button v-if="scope.row.on" type="danger" size="small" @click="disable(scope.row)">禁用</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -31,6 +41,12 @@
         <el-form-item label="netmask">
           <el-input v-model="editForm.netmask" autocomplete="off" />
         </el-form-item>
+        <el-form-item label="网关">
+          <el-input v-model="editForm.gateway" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="DNS">
+          <el-input v-model="editForm.dns" autocomplete="off" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="showEdit = false">取 消</el-button>
@@ -43,9 +59,11 @@
 
 <script>
 import { mapState } from 'vuex'
+import { Message } from 'element-ui'
 export default {
   data() {
     return {
+      loading: false,
       activeTab: '/service/settings',
       showEdit: false,
       editForm: {}
@@ -79,7 +97,9 @@ export default {
       var params = {
         name: this.editForm.name,
         ip: this.editForm.ip,
-        netmask: this.editForm.netmask
+        netmask: this.editForm.netmask,
+        gateway: this.editForm.gateway,
+        dns: this.editForm.dns
       }
       console.log(params)
       if (this.loading) return
@@ -98,6 +118,70 @@ export default {
         })
         this.loading = false
         this.showEdit = false
+      })
+    },
+    disable(item) {
+      if (this.loading) return
+      var _this = this
+      var params = {
+        name: item.name
+      }
+      this.loading = true
+      this.$store.dispatch('service/networkDisable', params).then((res) => {
+        console.log(res)
+        if (res) {
+          Message({
+            message: '已禁用',
+            type: 'success',
+            duration: 2 * 1000,
+            onClose() {
+              _this.loading = false
+            }
+          })
+        } else {
+          Message({
+            message: '操作失败',
+            type: 'error',
+            duration: 2 * 1000,
+            onClose() {
+              _this.loading = false
+            }
+          })
+        }
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    enable(item) {
+      if (this.loading) return
+      var _this = this
+      var params = {
+        name: item.name
+      }
+      this.loading = true
+      this.$store.dispatch('service/networkEnable', params).then((res) => {
+        console.log(res)
+        if (res) {
+          Message({
+            message: '已启用',
+            type: 'success',
+            duration: 2 * 1000,
+            onClose() {
+              _this.loading = false
+            }
+          })
+        } else {
+          Message({
+            message: '操作失败',
+            type: 'error',
+            duration: 2 * 1000,
+            onClose() {
+              _this.loading = false
+            }
+          })
+        }
+      }).catch(() => {
+        this.loading = false
       })
     }
   }

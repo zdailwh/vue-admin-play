@@ -195,3 +195,25 @@ export function updateNetwork(params) {
     data: params
   })
 }
+
+export function networkDisable(params) {
+  return request({
+    url: '/configs/network/' + params.name + '/disable',
+    method: 'put'
+  })
+}
+
+export function networkEnable(params) {
+  return request({
+    url: '/configs/network/' + params.name + '/enable',
+    method: 'put'
+  })
+}
+
+export function getStatus(params) {
+  return request({
+    url: '/configs/getstatus',
+    method: 'get',
+    params
+  })
+}
