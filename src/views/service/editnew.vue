@@ -20,7 +20,10 @@
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="编码配置" prop="input">
-          <el-tree :data="paramTreeData" show-checkbox node-key="id" :props="paramTreeProps" @check="treeCheck" />
+          <p v-for="(item, key) in paramTreeData" :key="key">
+            {{ item.name }}
+            <el-tree :data="item.children" show-checkbox node-key="id" :props="paramTreeProps" :default-checked-keys="checkParam[item.id]" @check="treeCheck" />
+          </p>
         </el-form-item>
         <!-- <el-form-item label="台标">
           <p>
@@ -77,10 +80,12 @@ export default {
         ]
       },
       checkInput: [],
+      checkParam: {},
       paramTreeProps: {
         children: 'children',
         label: 'name'
-      }
+      },
+      paramWithOutputMap: []
     }
   },
   computed: {
@@ -100,11 +105,36 @@ export default {
     }),
     paramTreeData() {
       var self = this
-      var data = this.paramWithNameList
-      for (var i = 0; i < data.length; i++) {
-        data[i].children = self.outputWithNameList
-      }
-      return data
+      if (!this.paramWithNameList.length) return
+      if (!this.outputWithNameList.length) return
+      // var data = this.paramWithNameList
+      // var parent
+      // for (var i = 0; i < data.length; i++) {
+      //   parent = data[i]
+      //   var subOutputs = self.outputWithNameList
+      //   for (var j = 0; j < subOutputs.length; j++) {
+      //     subOutputs[j].parent = parent
+      //   }
+      //   data[i].children = subOutputs
+      // }
+      var param = {}
+      var subOutputs = []
+      var output = {}
+      var parentId = null
+      var formatdata = this.paramWithNameList.map((item, key, array) => {
+        param = item
+        parentId = item.id
+        subOutputs = self.outputWithNameList.map((it, k, arr) => {
+          output = it
+          output.parent = param
+          output.parent_id = parentId
+          return output
+        })
+        param.children = subOutputs
+        return param
+      })
+      console.log(formatdata)
+      return formatdata
     }
   },
   mounted() {
@@ -126,14 +156,14 @@ export default {
     onSubmitService(formName) {
       this.$refs.formService.validate((valid) => {
         if (valid) {
-          if (!this.input.id) {
-            this.$message.error('请选择或添加输入配置！')
+          if (this.checkInput.length !== 1) {
+            this.$message.error('请选择一个输入配置！')
             return
           }
-          if (!this.output.length) {
-            this.$message.error('请选择或添加输出配置！')
-            return
-          }
+          // if (this.paramWithOutputMap.length < 1 || this.paramWithOutputMa.length > 3) {
+          //   this.$message.error('请选择1到3个编码配置！')
+          //   return
+          // }
           if (this.formService.type === 0) {
             this.$refs.formService.validate((valid2) => {
               if (valid2) {
@@ -168,30 +198,11 @@ export default {
       }
       params.name = this.formService.name
       params.type = this.formService.type
-      params.input_class = this.input.class
-      params.input_id = this.input.id
-      if (this.formService.type === 1 && this.output.length > 1) {
-        this.$message({
-          message: '解码器只能选择一个输出配置！',
-          type: 'error'
-        })
-        return
-      }
-      if (this.output.length) {
-        var outputIds = this.output.map(function(item) {
-          return item.id
-        })
-        params.output_class = this.output[0].class
-        params.output_id = outputIds.join(',')
-      }
-      if (this.checkedLogo.id) {
-        params.logo_class = this.checkedLogo.class
-        params.logo_id = this.checkedLogo.id
-        params.left_percent = this.$refs.logoScale.formLogo.left
-        params.top_percent = this.$refs.logoScale.formLogo.top
-        params.width_percent = this.$refs.logoScale.formLogo.width
-        params.height_percent = this.$refs.logoScale.formLogo.height
-      }
+      // params.input_class = this.input.class
+      params.input_id = this.checkInput[0]
+      // params.param_class = this.param[0].class
+      params.param_ids = this.paramWithOutputMap
+
       console.log(params)
       // 创建
       if (this.loading) return
@@ -216,36 +227,13 @@ export default {
       var params = {}
       if (this.formService.type === 0) {
         params = this.formService
-      } else {
-        // 解码器不需要编码配置中的内容
-        params.id = this.formService.id
       }
       params.name = this.formService.name
-      params.input_class = this.input.class
-      params.input_id = this.input.id
-      if (this.formService.type === 1 && this.output.length > 1) {
-        this.$message({
-          message: '解码器只能选择一个输出配置！',
-          type: 'error'
-        })
-        return
-      }
-      if (this.output.length) {
-        var outputIds = this.output.map(function(item) {
-          return item.id
-        })
-        params.output_class = this.output[0].class
-        params.output_id = outputIds.join(',')
-      }
+      // params.input_class = this.input.class
+      params.input_id = this.checkInput[0]
+      // params.param_class = this.param[0].class
+      params.param_ids = this.paramWithOutputMap
 
-      if (this.checkedLogo.id) {
-        params.logo_class = this.checkedLogo.class
-        params.logo_id = this.checkedLogo.id
-        params.left_percent = this.$refs.logoScale.formLogo.left
-        params.top_percent = this.$refs.logoScale.formLogo.top
-        params.width_percent = this.$refs.logoScale.formLogo.width
-        params.height_percent = this.$refs.logoScale.formLogo.height
-      }
       console.log(params)
       if (this.loading) return
       this.loading = true
@@ -266,8 +254,20 @@ export default {
       })
     },
     getChannel() {
+      var self = this
       this.$store.dispatch('service/getChannel', { id: this.$route.params.sid }).then((response) => {
         this.formService = response
+        if (this.formService.input.id) {
+          this.checkInput = [this.formService.input.id]
+        }
+        if (this.formService.param.length) {
+          for (var i = 0; i < this.formService.param.length; i++) {
+            var item = this.formService.param[i]
+            var paramId = item.id
+            var outputs = item.output
+            self.checkParam[paramId] = outputs
+          }
+        }
       }).catch(() => {
       })
     },
@@ -292,13 +292,34 @@ export default {
       })
     },
     treeCheck(currNode, checkedObj) {
-      console.log(currNode)
       console.log(checkedObj)
-    },
-    treeCheckChange(p1, p2, p3) {
-      console.log(p1)
-      console.log(p2)
-      console.log(p3)
+      var paramObj = currNode.parent
+      var outputIdArr = checkedObj.checkedKeys
+      var hasIndex = ''
+      var has = this.paramWithOutputMap.find((item, index, array) => {
+        if (item.param_id === paramObj.id) {
+          hasIndex = index
+          return true
+        } else {
+          return false
+        }
+      })
+      if (has) {
+        if (outputIdArr.length) {
+          // this.paramWithOutputMap[hasIndex].param_id = paramObj.id
+          this.paramWithOutputMap[hasIndex].output_ids = outputIdArr
+        } else {
+          this.paramWithOutputMap.splice(hasIndex, 1)
+        }
+      } else {
+        if (outputIdArr.length) {
+          this.paramWithOutputMap.push({
+            param_id: paramObj.id,
+            output_ids: outputIdArr
+          })
+        }
+      }
+      console.log(this.paramWithOutputMap)
     }
     // inputChange(input) {
     //   this.input = input
