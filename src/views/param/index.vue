@@ -197,7 +197,9 @@
             </el-select>
           </el-form-item> -->
           <el-form-item label="输出码率" prop="muxrate">
-            <el-input v-model="formEncode.muxrate" placeholder="请输入输出码率" />
+            <el-input v-model="formEncode.muxrate" placeholder="请输入输出码率">
+              <template slot="append">kbps</template>
+            </el-input>
           </el-form-item>
           <el-form-item label="自定义参数" prop="custom">
             <el-input v-model="formEncode.custom" placeholder="请输入自定义参数" />
@@ -256,7 +258,7 @@ export default {
         v_resolution_h: '', // 可选 可为空 或为 -1 ，w、h 必须同时存在或为空，不能同时为-1----视频高度
         v_bitrate: 10000, // 正整数 必选----视频码率
         v_framerate: '', // 60, 50, 30, 25, 24  可选，可为空，或列表选择----视频帧率
-        v_profile: 'rext', // BaseLine/Main/High/Main10/High10 可选 ,可输入或列表，也可为空----profile
+        v_profile: 'main10', // BaseLine/Main/High/Main10/High10 可选 ,可输入或列表，也可为空----profile
         v_preset: 'slow', // 可选----预设值
         // (libx264,libx265) ultrafast\superfast\veryfast\faster\fast\medium\slow\slower\veryslow\placebo
         // (h264_nvenc,hevc_nvenc) slow\medium\fast\hp\hq\bd\ll\llhq\llhp\lossless\losslesshp
