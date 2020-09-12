@@ -7,11 +7,17 @@
           <template slot-scope="scope">
             <el-form label-position="left" inline class="table-expand">
               <el-form-item label="ID："><span>{{ scope.row.id }}</span></el-form-item>
-              <el-form-item v-if="scope.row.log" label="log："><span>{{ scope.row.log }}</span></el-form-item>
+              <el-form-item v-if="scope.row.log" label="log："><span>{{ scope.row.log }}</span></el-form-item><el-form-item label="台标对象ID："><span>{{ scope.row.logo_id }}</span></el-form-item>
             </el-form>
           </template>
         </el-table-column>
         <el-table-column type="index" width="50" />
+        <el-table-column label="名称">
+          <template slot-scope="scope">{{ scope.row.name }}</template>
+        </el-table-column>
+        <el-table-column label="类型">
+          <template slot-scope="scope">{{ scope.row.type === 0 ? '编码器' : '解码器' }}</template>
+        </el-table-column>
         <el-table-column label="视频编码">
           <template slot-scope="scope">{{ v_codec_obj[scope.row.v_codec] }}</template>
         </el-table-column>
@@ -56,9 +62,18 @@
       </el-table>
     </div>
 
-    <el-dialog :title="formEncode.id ? '编辑编码配置': '添加编码配置'" :visible.sync="showEdit">
+    <el-dialog :title="formEncode.id ? '编辑编码配置': '添加编码配置'" :visible.sync="showEdit" width="80%">
       <div class="grid-form">
         <el-form ref="formEncode" :model="formEncode" label-width="120px" :rules="rules">
+          <el-form-item label="类型 " prop="type" :disabled="formEncode.id">
+            <el-select v-model="formEncode.type" placeholder="请选择类型">
+              <el-option label="编码器" :value="0" />
+              <el-option label="解码器" :value="1" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="formEncode.name" placeholder="请输入频道配置名称" />
+          </el-form-item>
           <el-form-item label="视频编码" prop="v_codec">
             <el-select v-model="formEncode.v_codec" placeholder="请选择视频编码">
               <el-option v-for="(v, k) in v_codec_obj" :key="k" :label="v" :value="k" />
@@ -187,6 +202,14 @@
           <el-form-item label="自定义参数" prop="custom">
             <el-input v-model="formEncode.custom" placeholder="请输入自定义参数" />
           </el-form-item>
+          <el-form-item label="台标">
+            <p>
+              <el-button v-if="!v_resolution_w || !v_resolution_h" type="primary" @click="$message({ message: '请选择分辨率！', type: 'error' })">选择台标</el-button>
+              <el-button v-else type="primary" @click="$refs.logoDialog.dialogVisible = true">选择台标</el-button>
+              <el-button v-show="checkedLogo && checkedLogo.id" type="danger" @click="cleanLogo">取消选择</el-button>
+            </p>
+            <Scale ref="logoScale" :url="checkedLogo.url || ''" :fatherw="v_resolution_w" :fatherh="v_resolution_h" :toppercent="formEncode.top_percent" :leftpercent="formEncode.left_percent" :widthpercent="formEncode.width_percent" :heightpercent="formEncode.height_percent" />
+          </el-form-item>
         </el-form>
       </div>
       <div slot="footer" class="dialog-footer">
@@ -194,13 +217,16 @@
         <el-button type="primary" @click="onSubmitOutput">{{ formEncode.id ? '更 新': '添 加' }}</el-button>
       </div>
     </el-dialog>
-
+    <Logos ref="logoDialog" :checkedlogo="checkedLogo" @uploadlogo="uploadLogo($event)" @checklogo="checkLogo($event)" @dellogo="delLogo($event)" />
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import Scale from '../service/scale.vue'
+import Logos from '../service/logos.vue'
 export default {
+  components: { Logos, Scale },
   filters: {
     formatUrl(val) {
       if (val.indexOf('?') > 0) {
@@ -214,7 +240,12 @@ export default {
     return {
       loading: false,
       showEdit: false,
+      v_resolution_w: '',
+      v_resolution_h: '',
+      checkedLogo: {},
       formEncode: {
+        type: 0,
+        name: '',
         left_percent: 0, // Logo左边距 百分比 可选，上面Logo对象存在时必选----左边距百分比
         top_percent: 0, // Logo顶部边距 百分比 可选，上面Logo对象存在时必选----上边距百分比
         width_percent: 0, // Logo相对宽度 百分比 可选，上面Logo对象存在时必选----宽度百分比
@@ -237,6 +268,12 @@ export default {
       },
       customBitrate: false,
       rules: {
+        type: [
+          { required: true, message: '请选择类型', trigger: 'change' }
+        ],
+        name: [
+          { required: true, message: '请输入频道配置名称', trigger: 'blur' }
+        ],
         v_codec: [
           { required: true, message: '请选择视频编码', trigger: 'change' }
         ],
@@ -313,15 +350,28 @@ export default {
     toEdit(index, item) {
       this.editIdx = index
       this.formEncode = item
+
+      var v_resolution = (this.formEncode.v_resolution_w && this.formEncode.v_resolution_h) ? (this.formEncode.v_resolution_w + 'x' + this.formEncode.v_resolution_h) : ''
+      this.$set(this.formEncode, 'v_resolution', v_resolution)
+      if (['384k', '192k', '128k'].indexOf(this.formEncode.a_bitrate) === -1) {
+        this.formEncode.a_bitrate_custom = this.formEncode.a_bitrate
+        this.formEncode.a_bitrate = '自定义'
+      }
+      this.checkedLogo = item.logo ? item.logo : {}
+
       this.showEdit = true
     },
     onSubmitOutput() {
       this.$refs.formEncode.validate((valid) => {
         if (valid) {
-          if (this.formEncode.id) {
-            this.doEdit()
+          if (!this.checkedLogo.id) {
+            this.$message.error('请上传或选择台标！')
           } else {
-            this.doAdd()
+            if (this.formEncode.id) {
+              this.doEdit()
+            } else {
+              this.doAdd()
+            }
           }
         } else {
           console.log('error submit!!')
@@ -332,6 +382,25 @@ export default {
     doEdit() {
       var params = this.formEncode
       params.index = this.editIdx
+      if (this.formEncode.a_bitrate === '自定义') {
+        if (this.formEncode.a_bitrate_custom === '') {
+          this.$message({
+            message: '请填写您的自定义音频码率！',
+            type: 'error'
+          })
+          return false
+        } else {
+          params.a_bitrate = this.formEncode.a_bitrate_custom
+        }
+      }
+      if (this.checkedLogo.id) {
+        params.logo_class = this.checkedLogo.class
+        params.logo_id = this.checkedLogo.id
+        params.left_percent = this.$refs.logoScale.formLogo.left
+        params.top_percent = this.$refs.logoScale.formLogo.top
+        params.width_percent = this.$refs.logoScale.formLogo.width
+        params.height_percent = this.$refs.logoScale.formLogo.height
+      }
       console.log(params)
       if (this.loading) return
       this.loading = true
@@ -353,6 +422,25 @@ export default {
     },
     doAdd() {
       var params = this.formEncode
+      if (this.formEncode.a_bitrate === '自定义') {
+        if (this.formEncode.a_bitrate_custom === '') {
+          this.$message({
+            message: '请填写您的自定义音频码率！',
+            type: 'error'
+          })
+          return false
+        } else {
+          params.a_bitrate = this.formEncode.a_bitrate_custom
+        }
+      }
+      if (this.checkedLogo.id) {
+        params.logo_class = this.checkedLogo.class
+        params.logo_id = this.checkedLogo.id
+        params.left_percent = this.$refs.logoScale.formLogo.left
+        params.top_percent = this.$refs.logoScale.formLogo.top
+        params.width_percent = this.$refs.logoScale.formLogo.width
+        params.height_percent = this.$refs.logoScale.formLogo.height
+      }
       console.log(params)
       // 创建
       if (this.loading) return
@@ -374,6 +462,7 @@ export default {
       })
     },
     newData() {
+      this.formEncode = { type: 0 }
       this.showEdit = true
     },
     delParam(index, id) {
@@ -399,6 +488,54 @@ export default {
         })
       }).catch(() => {
       })
+    },
+    uploadLogo(logo) {
+      console.log(logo)
+      this.getLogoList()
+      // this.checkedLogo = logo
+    },
+    checkLogo(params) {
+      this.checkedLogo = params.logo
+      this.formEncode.logo = params.logo
+      this.formEncode.width_percent = 0
+      this.formEncode.height_percent = 0
+    },
+    delLogo(params) {
+      // if (params.id === this.checkedLogo.id) {
+      //   this.checkedLogo = {}
+      // }
+      if (this.checkedLogo && this.checkedLogo.id === params.id) {
+        this.$message({
+          message: '此logo已被选中，请先取消选择！',
+          type: 'error'
+        })
+        return
+      }
+
+      this.$confirm('确定要删除此logo吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('service/delLogo', params).then(() => {
+          this.$message({
+            message: '删除成功！',
+            type: 'success'
+          })
+        }).catch((e) => {
+          this.$message({
+            message: e.response.data || '删除失败！',
+            type: 'error'
+          })
+        })
+      }).catch(() => {
+      })
+    },
+    cleanLogo() {
+      this.checkedLogo = {}
+      this.formEncode.logo = null
+      this.formEncode.width_percent = 0
+      this.formEncode.height_percent = 0
     }
   }
 }

@@ -56,7 +56,7 @@
           </el-form-item> -->
           <el-form-item label="类型" prop="type">
             <el-select v-model="formOutput.type" placeholder="请选择类型">
-              <el-option label="设备" :value="0" />
+              <!-- <el-option label="设备" :value="0" /> -->
               <el-option label="网络" :value="1" />
               <el-option label="文件" :value="2" />
             </el-select>

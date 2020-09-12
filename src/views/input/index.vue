@@ -21,10 +21,10 @@
         <el-table-column label="协议">
           <template slot-scope="scope">{{ scope.row.protocol }}</template>
         </el-table-column>
-        <el-table-column label="解码格式">
+        <!-- <el-table-column label="解码格式">
           <template v-if="scope.row.decoder" slot-scope="scope">{{ decoder_obj[scope.row.decoder] }}</template>
           <template v-else>PASS</template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="参数">
           <template slot-scope="scope">
             <p v-if="scope.row.para_name1">{{ scope.row.para_name1 }}：{{ scope.row.para_value1 }}</p>
@@ -51,7 +51,7 @@
         <el-form ref="formInput" :model="formInput" label-width="120px" :rules="rules">
           <el-form-item label="类型" prop="type">
             <el-select v-model="formInput.type" placeholder="请选择类型">
-              <el-option label="设备" :value="0" />
+              <!-- <el-option label="设备" :value="0" /> -->
               <el-option label="网络" :value="1" />
               <el-option label="文件" :value="2" />
             </el-select>
@@ -73,12 +73,12 @@
           <el-form-item label="链接地址" prop="url">
             <el-input v-model="formInput.url" placeholder="请输入链接地址" />
           </el-form-item>
-          <el-form-item label="解码格式" prop="decoder">
+          <!-- <el-form-item label="解码格式" prop="decoder">
             <el-select v-model="formInput.decoder" placeholder="请选择解码格式">
               <el-option label="PASS" value="" />
               <el-option v-for="(v, k) in decoder_obj" :key="k" :label="v" :value="k" />
             </el-select>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="参数1">
             <el-col :span="11">
               <el-input v-model="formInput.para_name1" placeholder="请输入参数名称" />
@@ -147,14 +147,14 @@ export default {
         url: [
           { required: true, message: '请输入链接地址', trigger: 'blur' }
         ]
-      },
-      decoder_obj: {
-        // '': 'PASS',
-        'hevc': 'HEVC',
-        'hevc_cuvid': 'HEVC硬解',
-        'h264': 'H264',
-        'h264_cuvid': 'H264硬解'
       }
+      // decoder_obj: {
+      //   // '': 'PASS',
+      //   'hevc': 'HEVC',
+      //   'hevc_cuvid': 'HEVC硬解',
+      //   'h264': 'H264',
+      //   'h264_cuvid': 'H264硬解'
+      // }
     }
   },
   computed: {
@@ -243,7 +243,8 @@ export default {
       })
     },
     newData() {
-      this.formInput = { type: 1, decoder: 'hevc' }
+      // this.formInput = { type: 1, decoder: 'hevc' }
+      this.formInput = { type: 1 }
       this.showEdit = true
     },
     delInput(index, id) {

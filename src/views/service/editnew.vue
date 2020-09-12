@@ -1,0 +1,370 @@
+<template>
+  <div class="dashboard-container">
+    <el-card class="box-card" shadow="hover">
+      <div slot="header">
+        <span>service设置</span>
+      </div>
+      <el-form ref="formService" :model="formService" label-width="120px" :rules="rules">
+        <el-form-item label="类型 " prop="type" :disabled="flag === 'edit'">
+          <el-select v-model="formService.type" placeholder="请选择类型">
+            <el-option label="编码器" :value="0" />
+            <!-- <el-option label="解码器" :value="1" /> -->
+          </el-select>
+        </el-form-item>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="formService.name" placeholder="请输入频道名称" />
+        </el-form-item>
+        <el-form-item label="输入配置" prop="input">
+          <el-checkbox-group v-model="checkInput">
+            <el-checkbox v-for="item in inputList" :key="item.id" :label="item.id">({{ item.typename }}) {{ item.url }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="编码配置" prop="input">
+          <el-tree :data="paramTreeData" show-checkbox node-key="id" :props="paramTreeProps" @check="treeCheck" />
+        </el-form-item>
+        <!-- <el-form-item label="台标">
+          <p>
+            <el-button v-if="!v_resolution_w || !v_resolution_h" type="primary" @click="$message({ message: '请选择分辨率！', type: 'error' })">选择台标</el-button>
+            <el-button v-else type="primary" @click="$refs.logoDialog.dialogVisible = true">选择台标</el-button>
+            <el-button v-show="checkedLogo && checkedLogo.id" type="danger" @click="cleanLogo">取消选择</el-button>
+          </p>
+          <Scale ref="logoScale" :url="checkedLogo.url || ''" :fatherw="v_resolution_w" :fatherh="v_resolution_h" :toppercent="formService.top_percent" :leftpercent="formService.left_percent" :widthpercent="formService.width_percent" :heightpercent="formService.height_percent" />
+        </el-form-item> -->
+        <el-form-item>
+          <el-button v-if="channel.status !== 1" type="warning" @click="onSubmitService('formService')">保存配置</el-button>
+          <a href="javascript:window.history.go(-1);">
+            <el-button>取消</el-button>
+          </a>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <!-- <Logos ref="logoDialog" :checkedlogo="checkedLogo" @uploadlogo="uploadLogo($event)" @checklogo="checkLogo($event)" @dellogo="delLogo($event)" /> -->
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapState } from 'vuex'
+// import Scale from './scale.vue'
+// import Logos from './logos.vue'
+
+export default {
+  // components: { Logos, Scale },
+  filters: {
+    ArrToStr(val) {
+      if (val && val.length) {
+        return val.join('-')
+      }
+    },
+    formatUrl(val) {
+      if (val.indexOf('?') > 0) {
+        return val.substring(0, val.indexOf('?'))
+      } else {
+        return val
+      }
+    }
+  },
+  data() {
+    return {
+      loading: false,
+      flag: 'add', // add or edit
+      formService: {
+        type: null,
+        name: ''
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入频道名称', trigger: 'blur' }
+        ]
+      },
+      checkInput: [],
+      paramTreeProps: {
+        children: 'children',
+        label: 'name'
+      }
+    }
+  },
+  computed: {
+    ...mapGetters({
+      inputList: 'service/inputsTypeNot2',
+      outputList: 'service/outputsTypeNot2',
+      inputWithNameList: 'service/inputsWithName',
+      outputWithNameList: 'service/outputsWithName',
+      paramWithNameList: 'service/paramsWithName'
+    }),
+    ...mapState({
+      channel: state => state.service.channel,
+      paramList: state => state.service.params,
+      // inputList: state => state.service.inputs,
+      // outputList: state => state.service.outputs,
+      logoList: state => state.service.logos
+    }),
+    paramTreeData() {
+      var self = this
+      var data = this.paramWithNameList
+      for (var i = 0; i < data.length; i++) {
+        data[i].children = self.outputWithNameList
+      }
+      return data
+    }
+  },
+  mounted() {
+    this.getOutputList()
+    this.getInputList()
+    this.getParamList()
+    this.getLogoList()
+    if (this.$route.params.sid) {
+      this.flag = 'edit'
+      this.getChannel()
+    } else {
+      this.flag = 'add'
+      this.$store.commit('service/SET_CHANNEL', {})
+    }
+  },
+  methods: {
+    newData(item) {
+    },
+    onSubmitService(formName) {
+      this.$refs.formService.validate((valid) => {
+        if (valid) {
+          if (!this.input.id) {
+            this.$message.error('请选择或添加输入配置！')
+            return
+          }
+          if (!this.output.length) {
+            this.$message.error('请选择或添加输出配置！')
+            return
+          }
+          if (this.formService.type === 0) {
+            this.$refs.formService.validate((valid2) => {
+              if (valid2) {
+                if (this.flag === 'edit' && this.channel.id) {
+                  this.editChannel()
+                } else {
+                  this.addChannel()
+                }
+              } else {
+                this.curr = 'encode'
+                this.handle = 'form'
+                this.$message.error('请完善编码配置！')
+              }
+            })
+          } else {
+            if (this.flag === 'edit' && this.channel.id) {
+              this.editChannel()
+            } else {
+              this.addChannel()
+            }
+          }
+        } else {
+          this.$message.error('请完善service设置！')
+          return false
+        }
+      })
+    },
+    addChannel() {
+      var params = {}
+      if (this.formService.type === 0) {
+        params = this.formService
+      }
+      params.name = this.formService.name
+      params.type = this.formService.type
+      params.input_class = this.input.class
+      params.input_id = this.input.id
+      if (this.formService.type === 1 && this.output.length > 1) {
+        this.$message({
+          message: '解码器只能选择一个输出配置！',
+          type: 'error'
+        })
+        return
+      }
+      if (this.output.length) {
+        var outputIds = this.output.map(function(item) {
+          return item.id
+        })
+        params.output_class = this.output[0].class
+        params.output_id = outputIds.join(',')
+      }
+      if (this.checkedLogo.id) {
+        params.logo_class = this.checkedLogo.class
+        params.logo_id = this.checkedLogo.id
+        params.left_percent = this.$refs.logoScale.formLogo.left
+        params.top_percent = this.$refs.logoScale.formLogo.top
+        params.width_percent = this.$refs.logoScale.formLogo.width
+        params.height_percent = this.$refs.logoScale.formLogo.height
+      }
+      console.log(params)
+      // 创建
+      if (this.loading) return
+      this.loading = true
+      this.$store.dispatch('service/addChannel', params).then((response) => {
+        this.$message({
+          message: '频道添加成功！',
+          type: 'success'
+        })
+        this.loading = false
+        this.handle = 'view'
+        this.$router.push({ path: '/service/index/' + this.formService.type })
+      }).catch((e) => {
+        this.$message({
+          message: e.response.data || '频道添加失败！',
+          type: 'error'
+        })
+        this.loading = false
+      })
+    },
+    editChannel() {
+      var params = {}
+      if (this.formService.type === 0) {
+        params = this.formService
+      } else {
+        // 解码器不需要编码配置中的内容
+        params.id = this.formService.id
+      }
+      params.name = this.formService.name
+      params.input_class = this.input.class
+      params.input_id = this.input.id
+      if (this.formService.type === 1 && this.output.length > 1) {
+        this.$message({
+          message: '解码器只能选择一个输出配置！',
+          type: 'error'
+        })
+        return
+      }
+      if (this.output.length) {
+        var outputIds = this.output.map(function(item) {
+          return item.id
+        })
+        params.output_class = this.output[0].class
+        params.output_id = outputIds.join(',')
+      }
+
+      if (this.checkedLogo.id) {
+        params.logo_class = this.checkedLogo.class
+        params.logo_id = this.checkedLogo.id
+        params.left_percent = this.$refs.logoScale.formLogo.left
+        params.top_percent = this.$refs.logoScale.formLogo.top
+        params.width_percent = this.$refs.logoScale.formLogo.width
+        params.height_percent = this.$refs.logoScale.formLogo.height
+      }
+      console.log(params)
+      if (this.loading) return
+      this.loading = true
+      this.$store.dispatch('service/updateChannel', params).then(() => {
+        this.$message({
+          message: '频道更新成功！',
+          type: 'success'
+        })
+        this.loading = false
+        this.handle = 'view'
+        this.$router.push({ path: '/service/index/' + this.formService.type })
+      }).catch((e) => {
+        this.$message({
+          message: e.response.data || '频道更新失败！',
+          type: 'error'
+        })
+        this.loading = false
+      })
+    },
+    getChannel() {
+      this.$store.dispatch('service/getChannel', { id: this.$route.params.sid }).then((response) => {
+        this.formService = response
+      }).catch(() => {
+      })
+    },
+    getInputList() {
+      this.$store.dispatch('service/getInputs').then(() => {
+      }).catch(() => {
+      })
+    },
+    getOutputList() {
+      this.$store.dispatch('service/getOutputs').then(() => {
+      }).catch(() => {
+      })
+    },
+    getParamList() {
+      this.$store.dispatch('service/getParams').then(() => {
+      }).catch(() => {
+      })
+    },
+    getLogoList() {
+      this.$store.dispatch('service/getLogos').then(() => {
+      }).catch(() => {
+      })
+    },
+    treeCheck(currNode, checkedObj) {
+      console.log(currNode)
+      console.log(checkedObj)
+    },
+    treeCheckChange(p1, p2, p3) {
+      console.log(p1)
+      console.log(p2)
+      console.log(p3)
+    }
+    // inputChange(input) {
+    //   this.input = input
+    // },
+    // outputChange(event, output, index) {
+    //   if (event) {
+    //     this.output.push(output)
+    //   } else {
+    //     var delIdx = ''
+    //     for (var i = 0; i < this.output.length; i++) {
+    //       var item = this.output[i]
+    //       if (item.id === output.id) {
+    //         delIdx = i
+    //       }
+    //     }
+    //     if (delIdx !== '') {
+    //       this.output.splice(delIdx, 1)
+    //     }
+    //   }
+    // },
+  }
+}
+</script>
+
+<style scoped>
+.dashboard-container {
+  padding: 20px;
+}
+.btnEdit {
+  float: right;
+  padding: 3px 0;
+}
+.cardHeader {
+  cursor: pointer;
+}
+.cardHeader.current {
+  color: #409EFF;
+}
+.cardHeader .el-button {
+  float: right;
+  padding: 3px 0;
+}
+.formInfo img {
+  max-width: 100px;
+  height: auto;
+}
+.formInfo p {
+  margin: 7px 0;
+}
+.formInfo + .formInfo {
+  border-top: 1px solid #666;
+}
+
+.table-expand {
+  font-size: 0;
+}
+.table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
+.el-select {
+  width: 100%;
+}
+</style>

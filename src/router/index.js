@@ -67,14 +67,14 @@ export const constantRoutes = [
       {
         path: 'edit/:sid',
         name: 'ServiceEdit',
-        component: () => import('@/views/service/edit'),
+        component: () => import('@/views/service/editnew'),
         meta: { title: '编辑', icon: 'table' },
         hidden: true
       },
       {
         path: 'add',
         name: 'ServiceAdd',
-        component: () => import('@/views/service/edit'),
+        component: () => import('@/views/service/editnew'),
         meta: { title: '添加service', icon: 'add' },
         hidden: false
       },
@@ -131,7 +131,7 @@ export const constantRoutes = [
   {
     path: '/service/add',
     name: 'ServiceAdd',
-    component: () => import('@/views/service/edit'),
+    component: () => import('@/views/service/editnew'),
     meta: { title: '添加service', icon: 'add' },
     hidden: false
   },

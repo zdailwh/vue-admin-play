@@ -29,6 +29,33 @@ const getters = {
       })
     }
     return res
+  },
+  inputsWithName: (state) => {
+    var res = state.inputs
+    if (state.inputs.length) {
+      for (var i = 0; i < res.length; i++) {
+        res[i].name = res[i].url
+      }
+    }
+    return res
+  },
+  outputsWithName: (state) => {
+    var res = state.outputs
+    if (state.outputs.length) {
+      for (var i = 0; i < res.length; i++) {
+        res[i].name = res[i].url
+      }
+    }
+    return res
+  },
+  paramsWithName: (state) => {
+    var res = state.params
+    // if (state.params.length) {
+    //   for (var i = 0; i < res.length; i++) {
+    //     res[i].name = res[i].name
+    //   }
+    // }
+    return res
   }
 }
 
