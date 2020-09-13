@@ -15,18 +15,25 @@
           </div>
           <div class="card">
             <div style="min-height: 120px;padding: 0 20px;">
-              <p>{{ o.input.url }}</p>
-              <p>{{ vcodecObj[o.v_codec] }} <span style="margin-left: 20px;">{{ o.v_bitrate }}</span></p>
-              <el-popover
-                placement="top"
-                width="526"
-                trigger="hover"
-              >
-                <el-table :data="o.output">
-                  <el-table-column width="500" property="url" label="链接地址" />
-                </el-table>
-                <el-button slot="reference" type="text">输出设备</el-button>
-              </el-popover>
+              <p>输入：{{ o.input.type === 0 ? o.input.name : o.input.url }}</p>
+              <p>视频：{{ vcodecObj[o.v_codec] }} <span style="margin-left: 20px;">{{ o.v_bitrate | formatbite }}</span></p>
+              <p>音频：{{ o.a_codec }}</p>
+              <p>总码率：{{ o.muxrate | formatbite }}</p>
+              <p>输出：</p>
+              <div v-if="o.output && o.output.length" style="margin-top: 15px;">
+                <p v-for="(item,k) in o.output" v-show="k<2" :key="k">{{ item.name }}</p>
+                <el-popover
+                  v-if="o.output.length > 2"
+                  placement="top"
+                  width="526"
+                  trigger="hover"
+                >
+                  <el-table :data="o.output">
+                    <el-table-column width="500" property="name" label="名称" />
+                  </el-table>
+                  <el-button slot="reference" type="text">查看全部</el-button>
+                </el-popover>
+              </div>
             </div>
             <!-- <img src="@/assets/play/tb.png" class="logo"> -->
             <div class="opeBtns">
@@ -36,9 +43,9 @@
               <el-button v-if="o.status === 2" size="small" style="color: #F56C6C;" :loading="currServiceid === o.id && loading === 'enable'" @click="changeStatus(index, o.id, 'enable')">恢复</el-button>
               <el-button size="small" @click="getLogList(o.id);currChannelId = o.id; logVisible = true">日志</el-button>
               <!-- <el-button size="small" @click="previewurl = o.previewurl; dialogVisible = true;">预览</el-button> -->
-              <a v-show="o.type === 0" :href="'/preview.html?previewurl=' + o.previewurl" target="_blank">
+              <!-- <a v-show="o.type === 0" :href="'/preview.html?previewurl=' + o.previewurl" target="_blank">
                 <el-button size="small">预览</el-button>
-              </a>
+              </a> -->
               <router-link :to="'/service/edit/'+o.id">
                 <el-button size="small">编辑</el-button>
               </router-link>
@@ -103,6 +110,35 @@ export default {
     formatUrl(val) {
       if (val.indexOf('?') > 0) {
         return val.substring(0, val.indexOf('?'))
+      } else {
+        return val
+      }
+    },
+    formatbite(val) {
+      if (!val) {
+        return ''
+      } else {
+        return (val / 1000).toFixed(1) + 'M'
+      }
+    },
+    getmore(val) {
+      console.log(val)
+      if (val.length <= 2) {
+        return []
+      } else {
+        return val.splice(2)
+      }
+    },
+    filterInputUrl(val) {
+      if (!val) return ''
+      if (val === 'DeckLink 8K Pro (1)') {
+        return 'SDI-1'
+      } else if (val === 'DeckLink 8K Pro (2)') {
+        return 'SDI-2'
+      } else if (val === 'DeckLink 8K Pro (3)') {
+        return 'SDI-3'
+      } else if (val === 'DeckLink 8K Pro (4)') {
+        return 'SDI-4'
       } else {
         return val
       }

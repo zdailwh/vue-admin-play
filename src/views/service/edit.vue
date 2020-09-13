@@ -128,7 +128,7 @@
                   <template slot-scope="scope">{{ scope.row.typename }}</template>
                 </el-table-column>
                 <el-table-column label="链接地址">
-                  <template slot-scope="scope">{{ scope.row.url }}</template>
+                  <template slot-scope="scope">{{ scope.row.type === 0 ? scope.row.name : scope.row.url }}</template>
                 </el-table-column>
                 <el-table-column label="解码格式">
                   <template v-if="scope.row.decoder" slot-scope="scope">{{ decoder_obj[scope.row.decoder] }}</template>
@@ -155,7 +155,7 @@
                 <!-- <p><span>类型：</span>{{ input.type }}</p> -->
                 <p><span>类型名称：</span>{{ input.typename }}</p>
                 <p><span>协议：</span>{{ input.protocol }}</p>
-                <p><span>链接地址：</span>{{ input.url }}</p>
+                <p><span>链接地址：</span>{{ input.type === 0 ? input.name : input.url }}</p>
                 <p v-if="input.decoder"><span>解码格式：</span>{{ decoder_obj[input.decoder] }}</p>
                 <p v-else><span>解码格式：</span>PASS</p>
                 <p><span>状态：</span>{{ input.statusstr }}</p>
@@ -383,9 +383,9 @@
           <template v-if="curr === 'output'">
             <div v-if="handle === 'form'" class="grid-form">
               <el-form ref="formOutput" :model="formOutput" label-width="120px" :rules="rules">
-                <!-- <el-form-item label="名称" prop="outputName">
-                  <el-input v-model="formOutput.outputName" placeholder="请输入名称" />
-                </el-form-item> -->
+                <el-form-item label="名称" prop="name">
+                  <el-input v-model="formOutput.name" placeholder="请输入名称" />
+                </el-form-item>
                 <el-form-item label="类型" prop="type">
                   <el-select v-model="formOutput.type" placeholder="请选择类型">
                     <!-- <el-option label="设备" :value="0" /> -->
@@ -398,17 +398,29 @@
                     <template v-if="formOutput.type === 1">
                       <el-option label="UDP" value="UDP" />
                       <el-option label="RTMP" value="RTMP" />
-                      <el-option label="RTP" value="RTP" />
+                      <!-- <el-option label="RTP" value="RTP" />
                       <el-option label="DASH" value="DASH" />
-                      <el-option label="HLS" value="HLS" />
+                      <el-option label="HLS" value="HLS" /> -->
                     </template>
                     <template v-else>
                       <el-option label="FILE" value="FILE" />
                     </template>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="链接地址" prop="url">
+                <el-form-item v-if="formOutput.protocol === 'UDP' || formOutput.protocol === 'udp'" label="组播地址" prop="url">
+                  <el-input v-model="formOutput.url" placeholder="地址格式：UDP://239.0.0.1:9000" />
+                </el-form-item>
+                <el-form-item v-else-if="formOutput.protocol === 'RTMP' || formOutput.protocol === 'rtmp'" label="推流地址" prop="url">
+                  <el-input v-model="formOutput.url" placeholder="请输入推流地址" />
+                </el-form-item>
+                <el-form-item v-else label="链接地址" prop="url">
                   <el-input v-model="formOutput.url" placeholder="请输入链接地址" />
+                </el-form-item>
+                <el-form-item v-if="formOutput.protocol === 'UDP' || formOutput.protocol === 'udp'" label="网卡" prop="interface">
+                  <el-select v-model="formOutput.interface" placeholder="请选择">
+                    <el-option label="auto" value="" />
+                    <el-option v-for="(item, k) in networks" v-show="item.ip" :key="k" :label="item.ip" :value="item.ip" />
+                  </el-select>
                 </el-form-item>
                 <el-form-item label="输出格式" prop="format">
                   <el-input v-model="formOutput.format" placeholder="请输入输出格式" />
@@ -475,7 +487,10 @@
                   <template slot-scope="scope">{{ scope.row.typename }}</template>
                 </el-table-column>
                 <el-table-column label="链接地址">
-                  <template slot-scope="scope">{{ scope.row.url | formatUrl }}</template>
+                  <template slot-scope="scope">{{ scope.row.url }}</template>
+                </el-table-column>
+                <el-table-column label="网卡">
+                  <template slot-scope="scope">{{ scope.row.interface }}</template>
                 </el-table-column>
                 <el-table-column label="输出格式">
                   <template slot-scope="scope">{{ scope.row.format }}</template>
@@ -498,10 +513,11 @@
           <template v-else>
             <div v-if="output.length" class="grid-info">
               <div v-for="(o, index) in output" :key="index" class="formInfo">
-                <!-- <p><span>类型：</span>{{ o.type }}</p> -->
+                <p><span>名称：</span>{{ o.name }}</p>
                 <p><span>类型名称：</span>{{ o.typename }}</p>
                 <p><span>协议：</span>{{ o.protocol }}</p>
-                <p><span>链接地址：</span>{{ o.url | formatUrl }}</p>
+                <p><span>链接地址：</span>{{ o.url }}</p>
+                <p><span>网卡：</span>{{ o.interface }}</p>
                 <p><span>输出格式：</span>{{ o.format }}</p>
                 <p><span>ts信息：</span>{{ o.tsinfo }}</p>
                 <p><span>状态：</span>{{ o.statusstr }}</p>
@@ -588,11 +604,12 @@ export default {
       },
       checkedLogo: {},
       formOutput: {
-        // outputName: '',
+        name: '',
         type: '',
         protocol: '',
         url: '',
         tsinfo: '',
+        interface: '',
         para_name1: '',
         para_value1: '',
         para_name2: '',
@@ -673,7 +690,8 @@ export default {
       channel: state => state.service.channel,
       // inputList: state => state.service.inputs,
       // outputList: state => state.service.outputs,
-      logoList: state => state.service.logos
+      logoList: state => state.service.logos,
+      networks: state => state.service.networks
     })
   },
   watch: {
@@ -726,6 +744,7 @@ export default {
     this.getOutputList()
     this.getInputList()
     this.getLogoList()
+    this.getNetworkList()
     if (this.$route.params.sid) {
       this.flag = 'edit'
       this.getChannel()
@@ -811,6 +830,10 @@ export default {
     onSubmitOutput(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          if (this.formOutput.name === '') {
+            this.$message.error('请填写名称！')
+            return
+          }
           if (this.formOutput.id) {
             this.editOutput()
           } else {
@@ -1222,6 +1245,11 @@ export default {
       this.formEncode.logo = null
       this.formEncode.width_percent = 0
       this.formEncode.height_percent = 0
+    },
+    getNetworkList() {
+      this.$store.dispatch('service/getNetworks').then(() => {
+      }).catch(() => {
+      })
     }
   }
 }

@@ -67,14 +67,14 @@ export const constantRoutes = [
       {
         path: 'edit/:sid',
         name: 'ServiceEdit',
-        component: () => import('@/views/service/editnew'),
+        component: () => import('@/views/service/edit'),
         meta: { title: '编辑', icon: 'table' },
         hidden: true
       },
       {
         path: 'add',
         name: 'ServiceAdd',
-        component: () => import('@/views/service/editnew'),
+        component: () => import('@/views/service/edit'),
         meta: { title: '添加service', icon: 'add' },
         hidden: false
       },
@@ -131,31 +131,31 @@ export const constantRoutes = [
   {
     path: '/service/add',
     name: 'ServiceAdd',
-    component: () => import('@/views/service/editnew'),
+    component: () => import('@/views/service/edit'),
     meta: { title: '添加service', icon: 'add' },
     hidden: false
   },
-  {
-    path: '/service/input',
-    name: 'serviceInput',
-    component: () => import('@/views/input/index'),
-    meta: { title: '输入配置', icon: 'list' },
-    hidden: false
-  },
-  {
-    path: '/service/output',
-    name: 'serviceOutput',
-    component: () => import('@/views/output/index'),
-    meta: { title: '输出配置', icon: 'list' },
-    hidden: false
-  },
-  {
-    path: '/service/param',
-    name: 'serviceParam',
-    component: () => import('@/views/param/index'),
-    meta: { title: '编码配置', icon: 'list' },
-    hidden: false
-  },
+  // {
+  //   path: '/service/input',
+  //   name: 'serviceInput',
+  //   component: () => import('@/views/input/index'),
+  //   meta: { title: '输入配置', icon: 'list' },
+  //   hidden: false
+  // },
+  // {
+  //   path: '/service/output',
+  //   name: 'serviceOutput',
+  //   component: () => import('@/views/output/index'),
+  //   meta: { title: '输出配置', icon: 'list' },
+  //   hidden: false
+  // },
+  // {
+  //   path: '/service/param',
+  //   name: 'serviceParam',
+  //   component: () => import('@/views/param/index'),
+  //   meta: { title: '编码配置', icon: 'list' },
+  //   hidden: false
+  // },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

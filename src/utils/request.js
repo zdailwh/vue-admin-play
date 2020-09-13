@@ -2,6 +2,7 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 // import { getToken } from '@/utils/auth'
+import { removeToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
@@ -73,12 +74,17 @@ service.interceptors.response.use(
   },
   error => {
     console.log(error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
+    if (error.response.status === 401) {
+      removeToken()
+      return Promise.reject(error)
+    } else {
+      Message({
+        message: error.response.data || error.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
   }
 )
 
