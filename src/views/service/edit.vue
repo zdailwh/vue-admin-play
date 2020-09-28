@@ -40,63 +40,87 @@
                 <!-- <el-form-item label="名称" prop="inputName">
                   <el-input v-model="formInput.inputName" placeholder="请输入名称" />
                 </el-form-item> -->
-                <el-form-item label="类型" prop="type">
-                  <el-select v-model="formInput.type" placeholder="请选择类型">
-                    <!-- <el-option label="设备" :value="0" /> -->
-                    <el-option label="网络" :value="1" />
-                    <!-- <el-option label="文件" :value="2" /> -->
+                <template v-if="flag === 'edit' && formInput.type !== 0">
+                  <el-form-item label="类型" prop="type">
+                    <el-select v-model="formInput.type" placeholder="请选择类型">
+                      <!-- <el-option label="设备" :value="0" /> -->
+                      <el-option label="网络" :value="1" />
+                      <!-- <el-option label="文件" :value="2" /> -->
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="协议" prop="protocol">
+                    <el-select v-model="formInput.protocol" placeholder="请选择协议">
+                      <template v-if="formInput.type === 1">
+                        <el-option label="UDP" value="UDP" />
+                        <el-option label="RTMP" value="RTMP" />
+                        <el-option label="RTP" value="RTP" />
+                        <el-option label="HTTP" value="HTTP" />
+                        <el-option label="HLS" value="HLS" />
+                      </template>
+                      <template v-else>
+                        <el-option label="FILE" value="FILE" />
+                      </template>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="链接地址" prop="url">
+                    <el-input v-model="formInput.url" placeholder="请输入链接地址" />
+                  </el-form-item>
+                  <el-form-item label="格式" prop="decoder">
+                    <el-select v-model="formInput.decoder" placeholder="请选择解码格式">
+                      <el-option label="PASS" value="" />
+                      <el-option v-for="(v, k) in decoder_obj" :key="k" :label="v" :value="k" />
+                    </el-select>
+                  </el-form-item>
+                </template>
+                <el-form-item label="音频配置" prop="a_channels">
+                  <el-select v-model="formInput.a_channels" multiple placeholder="请选择音频配置">
+                    <el-option v-for="item in 64" :key="item" :label="'音频通道' + item" :value="item" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="协议" prop="protocol">
-                  <el-select v-model="formInput.protocol" placeholder="请选择协议">
-                    <template v-if="formInput.type === 1">
-                      <el-option label="UDP" value="UDP" />
-                      <el-option label="RTMP" value="RTMP" />
-                      <el-option label="RTP" value="RTP" />
-                      <el-option label="DASH" value="DASH" />
-                      <el-option label="HLS" value="HLS" />
-                    </template>
-                    <template v-else>
-                      <el-option label="FILE" value="FILE" />
-                    </template>
+                <el-form-item label="视频配置" prop="v_bits">
+                  <el-select v-model="formInput.v_bits" placeholder="请选择视频配置">
+                    <el-option label="8bit YUV 4:2:2" value="8bit YUV 4:2:2" />
+                    <el-option label="10bit YUV 4:2:2" value="10bit YUV 4:2:2" />
+                    <el-option label="10bit RGB 4:4:4" value="10bit RGB 4:4:4" />
+                    <el-option label="12bit RGB 4:4:4" value="12bit RGB 4:4:4" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="链接地址" prop="url">
-                  <el-input v-model="formInput.url" placeholder="请输入链接地址" />
-                </el-form-item>
-                <el-form-item label="解码格式" prop="decoder">
-                  <el-select v-model="formInput.decoder" placeholder="请选择解码格式">
-                    <el-option label="PASS" value="" />
-                    <el-option v-for="(v, k) in decoder_obj" :key="k" :label="v" :value="k" />
+                <el-form-item label="色彩空间" prop="v_colors">
+                  <el-select v-model="formInput.v_colors" placeholder="请选择色彩空间">
+                    <el-option label="REC 601" value="REC 601" />
+                    <el-option label="REC 709" value="REC 709" />
+                    <el-option label="REC 2020" value="REC 2020" />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="参数1">
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_name1" placeholder="请输入参数名称" />
-                  </el-col>
-                  <el-col class="line" :span="2" />
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_value1" placeholder="请输入参数值" />
-                  </el-col>
-                </el-form-item>
-                <el-form-item label="参数2">
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_name2" placeholder="请输入参数名称" />
-                  </el-col>
-                  <el-col class="line" :span="2" />
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_value2" placeholder="请输入参数值" />
-                  </el-col>
-                </el-form-item>
-                <el-form-item label="参数3">
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_name3" placeholder="请输入参数名称" />
-                  </el-col>
-                  <el-col class="line" :span="2" />
-                  <el-col :span="11">
-                    <el-input v-model="formInput.para_value3" placeholder="请输入参数值" />
-                  </el-col>
-                </el-form-item>
+                <template v-if="flag === 'edit' && formInput.type !== 0">
+                  <el-form-item label="参数1">
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_name1" placeholder="请输入参数名称" />
+                    </el-col>
+                    <el-col class="line" :span="2" />
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_value1" placeholder="请输入参数值" />
+                    </el-col>
+                  </el-form-item>
+                  <el-form-item label="参数2">
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_name2" placeholder="请输入参数名称" />
+                    </el-col>
+                    <el-col class="line" :span="2" />
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_value2" placeholder="请输入参数值" />
+                    </el-col>
+                  </el-form-item>
+                  <el-form-item label="参数3">
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_name3" placeholder="请输入参数名称" />
+                    </el-col>
+                    <el-col class="line" :span="2" />
+                    <el-col :span="11">
+                      <el-input v-model="formInput.para_value3" placeholder="请输入参数值" />
+                    </el-col>
+                  </el-form-item>
+                </template>
                 <el-form-item>
                   <el-button type="warning" @click="onSubmitInput('formInput')">确定</el-button>
                   <el-button @click="handle = 'view'">取消</el-button>
@@ -107,7 +131,7 @@
               <el-table v-if="inputList && inputList.length" ref="inputTable" :data="inputList" size="small" height="350">
                 <el-table-column label="" width="34">
                   <template slot-scope="scope">
-                    <el-radio v-model="inputIndex" :label="scope.row.id" :disabled="(channel.type === 1 && scope.row.type === 0) || (flag === 'edit' && scope.row.used > 0 && scope.row.id !== channel.input.id)" @change="inputChange(scope.row)" />
+                    <el-radio v-model="inputIndex" :label="scope.row.id" :disabled="(channel.type === 1 && scope.row.type === 0) || (flag === 'edit' && scope.row.used > 0 && scope.row.id !== channel.input.id) || (single12g === '4x3G' && (scope.row.name === 'SDI-2' || scope.row.name === 'SDI-3' || scope.row.name === 'SDI-4'))" @change="inputChange(scope.row)" />
                   </template>
                 </el-table-column>
                 <el-table-column type="expand">
@@ -130,17 +154,22 @@
                 <el-table-column label="链接地址">
                   <template slot-scope="scope">{{ scope.row.type === 0 ? scope.row.name : scope.row.url }}</template>
                 </el-table-column>
-                <el-table-column label="解码格式">
+                <el-table-column label="格式">
                   <template v-if="scope.row.decoder" slot-scope="scope">{{ decoder_obj[scope.row.decoder] }}</template>
                   <template v-else>PASS</template>
                 </el-table-column>
                 <el-table-column label="状态">
                   <template slot-scope="scope">{{ scope.row.statusstr }}</template>
                 </el-table-column>
+                <el-table-column label="控制" width="140">
+                  <template v-if="scope.row.type === 0" slot-scope="scope">
+                    <el-switch v-model="single12g" active-text="4x3G" active-value="4x3G" inactive-text="12G" inactive-value="12G" :disabled="scope.row.name !== 'SDI-1' || usedInputs.length > 0" @change="changeSingle12g" />
+                  </template>
+                </el-table-column>
                 <el-table-column label="操作" width="110" fixed="right">
                   <template slot-scope="scope">
                     <el-button-group>
-                      <el-button v-if="scope.row.type !== 0" size="mini" icon="el-icon-edit" round @click.stop="handleEditInput(scope.$index, scope.row)" />
+                      <el-button size="mini" icon="el-icon-edit" round @click.stop="handleEditInput(scope.$index, scope.row)" />
                       <el-button v-if="scope.row.type !== 0 && scope.row.used === 0" size="mini" type="danger" icon="el-icon-delete" round @click.stop="delInput(scope.$index, scope.row.id)" />
                     </el-button-group>
                   </template>
@@ -158,6 +187,9 @@
                 <p><span>链接地址：</span>{{ input.type === 0 ? input.name : input.url }}</p>
                 <p v-if="input.decoder"><span>解码格式：</span>{{ decoder_obj[input.decoder] }}</p>
                 <p v-else><span>解码格式：</span>PASS</p>
+                <p><span>音频配置：</span>{{ input.a_channels }}</p>
+                <p><span>视频配置：</span>{{ input.v_bits }}</p>
+                <p><span>色彩空间：</span>{{ input.v_colors }}</p>
                 <p><span>状态：</span>{{ input.statusstr }}</p>
                 <p v-if="input.para_name1"><span>参数1：</span>{{ input.para_name1 }}：{{ input.para_value1 }}</p>
                 <p v-if="input.para_name2"><span>参数2：</span>{{ input.para_name2 }}：{{ input.para_value2 }}</p>
@@ -265,16 +297,23 @@
                 <el-select v-model="formEncode.a_codec" placeholder="请选择音频编码">
                   <el-option label="PASS" value="copy" />
                   <el-option label="aac" value="aac" />
-                  <el-option label="mp2" value="mp2" />
-                  <el-option label="mp3" value="mp3" />
+                  <el-option label="MP2 (MPEG audio layer 2)" value="mp2" />
+                  <el-option label="MP3 (MPEG audio layer 3)" value="mp3" />
+                  <el-option label="AC3" value="ac3" />
                 </el-select>
               </el-form-item>
               <el-form-item label="音频采样率" prop="a_samplerate">
                 <el-select v-model="formEncode.a_samplerate" placeholder="请选择音频采样率">
                   <el-option label="auto" value="" />
-                  <el-option label="44100" value="44100" />
-                  <el-option label="48000" value="48000" />
-                  <el-option label="32000" value="32000" />
+                  <el-option label="44100hz" value="44100" />
+                  <el-option label="48000hz" value="48000" />
+                  <el-option label="32000hz" value="32000" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="音频位数" prop="a_bits">
+                <el-select v-model="formEncode.a_bits" placeholder="请选择音频位数">
+                  <el-option label="16bit" value="16" />
+                  <el-option label="24bit" value="24" />
                 </el-select>
               </el-form-item>
               <el-form-item label="音频码率" prop="a_bitrate">
@@ -327,15 +366,16 @@
               <p><span>视频编码：</span>{{ v_codec_obj[formEncode.v_codec] }}</p>
               <p><span>视频宽度：</span>{{ formEncode.v_resolution_w }}</p>
               <p><span>视频高度：</span>{{ formEncode.v_resolution_h }}</p>
-              <p><span>视频码率：</span>{{ formEncode.v_bitrate }}</p>
+              <p><span>视频码率：</span>{{ formEncode.v_bitrate }}bps</p>
               <p><span>视频帧率：</span>{{ formEncode.v_framerate }}</p>
               <p><span>profile：</span>{{ formEncode.v_profile }}</p>
               <p><span>预设值：</span>{{ formEncode.v_preset }}</p>
               <!-- <p><span>视频像素格式：</span>{{ formEncode.v_format }}</p> -->
               <p><span>音频编码：</span>{{ formEncode.a_codec }}</p>
-              <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}</p>
+              <p><span>音频位数：</span>{{ formEncode.a_bits }}位</p>
+              <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}hz</p>
               <p><span>音频码率：</span>{{ formEncode.a_bitrate }}</p>
-              <p><span>输出码率：</span>{{ formEncode.muxrate }}</p>
+              <p><span>输出码率：</span>{{ formEncode.muxrate }}bps</p>
               <!-- <p><span>执行命令：</span>{{ formEncode.command }}</p>
               <p><span>运行进程：</span>{{ formEncode.pid }}</p>
               <p><span>日志文件：</span>{{ formEncode.logfile }}</p>
@@ -352,15 +392,16 @@
               <p><span>视频编码：</span>{{ v_codec_obj[formEncode.v_codec] }}</p>
               <p><span>视频宽度：</span>{{ formEncode.v_resolution_w }}</p>
               <p><span>视频高度：</span>{{ formEncode.v_resolution_h }}</p>
-              <p><span>视频码率：</span>{{ formEncode.v_bitrate }}</p>
+              <p><span>视频码率：</span>{{ formEncode.v_bitrate }}bps</p>
               <p><span>视频帧率：</span>{{ formEncode.v_framerate }}</p>
               <p><span>profile：</span>{{ formEncode.v_profile }}</p>
               <p><span>预设值：</span>{{ formEncode.v_preset }}</p>
               <!-- <p><span>视频像素格式：</span>{{ formEncode.v_format }}</p> -->
               <p><span>音频编码：</span>{{ formEncode.a_codec }}</p>
-              <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}</p>
+              <p><span>音频采样率：</span>{{ formEncode.a_samplerate }}hz</p>
+              <p><span>音频位数：</span>{{ formEncode.a_bits }}位</p>
               <p><span>音频码率：</span>{{ formEncode.a_bitrate }}</p>
-              <p><span>输出码率：</span>{{ formEncode.muxrate }}</p>
+              <p><span>输出码率：</span>{{ formEncode.muxrate }}bps</p>
               <!-- <p><span>执行命令：</span>{{ formEncode.command }}</p>
               <p><span>运行进程：</span>{{ formEncode.pid }}</p>
               <p><span>日志文件：</span>{{ formEncode.logfile }}</p>
@@ -398,9 +439,9 @@
                     <template v-if="formOutput.type === 1">
                       <el-option label="UDP" value="UDP" />
                       <el-option label="RTMP" value="RTMP" />
-                      <!-- <el-option label="RTP" value="RTP" />
-                      <el-option label="DASH" value="DASH" />
-                      <el-option label="HLS" value="HLS" /> -->
+                      <el-option label="RTP" value="RTP" />
+                      <el-option label="HTTP" value="HTTP" />
+                      <el-option label="HLS" value="HLS" />
                     </template>
                     <template v-else>
                       <el-option label="FILE" value="FILE" />
@@ -574,6 +615,9 @@ export default {
         protocol: '',
         url: '',
         decoder: 'hevc',
+        a_channels: [],
+        v_bits: '',
+        v_colors: '',
         para_name1: '',
         para_value1: '',
         para_name2: '',
@@ -598,6 +642,7 @@ export default {
         // (h264_nvenc,hevc_nvenc) slow\medium\fast\hp\hq\bd\ll\llhq\llhp\lossless\losslesshp
         a_codec: 'aac', // copy /aac/mp2/mp3 必选----音频编码
         a_samplerate: '48000', // 44100 48000 32000 可选----音频采样率
+        a_bits: '16bit',
         a_bitrate: '192k', // 正整数 必选----音频码率
         v_format: 'yuv420p', // 420p yuyv422 uyvy422 444p 可选----输出格式
         a_bitrate_custom: ''
@@ -670,7 +715,9 @@ export default {
         'libx265': 'HEVC',
         'hevc_nvenc': 'HEVC硬编',
         'libx264': 'H264',
-        'h264_nvenc': 'H264硬编'
+        'h264_nvenc': 'H264硬编',
+        'mpeg2video': 'MPEG2',
+        'libvpx-vp9': 'VP9'
       },
       decoder_obj: {
         // '': 'PASS',
@@ -678,7 +725,9 @@ export default {
         'hevc_cuvid': 'HEVC硬解',
         'h264': 'H264',
         'h264_cuvid': 'H264硬解'
-      }
+      },
+      single12g: '',
+      usedInputs: []
     }
   },
   computed: {
@@ -861,6 +910,11 @@ export default {
     },
     addInput() {
       var params = this.formInput
+      if (params.a_channels && params.a_channels.length) {
+        params.a_channels = params.a_channels.join('|')
+      } else {
+        params.a_channels = ''
+      }
       console.log(params)
       // 创建
       if (this.loading) return
@@ -907,12 +961,35 @@ export default {
     handleEditInput(index, input) {
       this.editInputIdx = index
       this.formInput = input
+      if (input.a_channels.length) {
+        this.formInput.a_channels = input.a_channels.split('|').map((item, idx, arr) => {
+          return parseInt(item)
+        })
+      } else {
+        this.formInput.a_channels = []
+      }
       this.curr = 'input'
       this.handle = 'form'
     },
     editInput() {
-      var params = this.formInput
+      var params = {}
+      if (this.formInput.type === 0) {
+        params = {
+          id: this.formInput.id,
+          a_channels: this.formInput.a_channels,
+          v_bits: this.formInput.v_bits,
+          v_colors: this.formInput.v_colors
+        }
+      } else {
+        params = this.formInput
+      }
+
       params.index = this.editInputIdx
+      if (params.a_channels && params.a_channels.length) {
+        params.a_channels = params.a_channels.join('|')
+      } else {
+        params.a_channels = ''
+      }
       if (this.loading) return
       this.loading = true
       this.$store.dispatch('service/updateInput', params).then(() => {
@@ -1207,7 +1284,16 @@ export default {
       })
     },
     getInputList() {
+      var self = this
       this.$store.dispatch('service/getInputs').then(() => {
+        this.inputList.forEach((item, idx, arr) => {
+          if (item.type === 0 && item.name === 'SDI-1') {
+            self.single12g = item.single12g || '12G'
+          }
+        })
+        this.usedInputs = this.inputList.filter((item, idx, arr) => {
+          return (item.type === 0 && (item.name === 'SDI-2' || item.name === 'SDI-3' || item.name === 'SDI-4') && item.status === 1)
+        })
       }).catch(() => {
       })
     },
@@ -1249,6 +1335,34 @@ export default {
     getNetworkList() {
       this.$store.dispatch('service/getNetworks').then(() => {
       }).catch(() => {
+      })
+    },
+    changeSingle12g(val) {
+      var id = ''
+      this.inputList.forEach((item, idx, arr) => {
+        if (item.type === 0 && item.name === 'SDI-1') {
+          id = item.id
+        }
+      })
+
+      var params = {
+        id: id,
+        single12g: val
+      }
+      if (this.loading) return
+      this.loading = true
+      this.$store.dispatch('service/updateInput', params).then(() => {
+        this.$message({
+          message: '操作成功！',
+          type: 'success'
+        })
+        this.loading = false
+      }).catch((e) => {
+        this.$message({
+          message: e.response.data || '操作失败！',
+          type: 'error'
+        })
+        this.loading = false
       })
     }
   }
