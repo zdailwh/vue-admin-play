@@ -74,11 +74,13 @@
                 </template>
                 <el-form-item label="音频配置" prop="a_channels">
                   <el-select v-model="formInput.a_channels" multiple placeholder="请选择音频配置">
+                    <el-option label="auto" value="" />
                     <el-option v-for="item in 64" :key="item" :label="'音频通道' + item" :value="item" />
                   </el-select>
                 </el-form-item>
                 <el-form-item label="视频配置" prop="v_bits">
                   <el-select v-model="formInput.v_bits" placeholder="请选择视频配置">
+                    <el-option label="auto" value="" />
                     <el-option label="8bit YUV 4:2:2" value="8bit YUV 4:2:2" />
                     <el-option label="10bit YUV 4:2:2" value="10bit YUV 4:2:2" />
                     <el-option label="10bit RGB 4:4:4" value="10bit RGB 4:4:4" />
@@ -87,6 +89,7 @@
                 </el-form-item>
                 <el-form-item label="色彩空间" prop="v_colors">
                   <el-select v-model="formInput.v_colors" placeholder="请选择色彩空间">
+                    <el-option label="auto" value="" />
                     <el-option label="REC 601" value="REC 601" />
                     <el-option label="REC 709" value="REC 709" />
                     <el-option label="REC 2020" value="REC 2020" />
@@ -347,6 +350,146 @@
               <el-form-item label="自定义参数" prop="custom">
                 <el-input v-model="formEncode.custom" placeholder="请输入自定义参数" />
               </el-form-item>
+              <el-form-item label="编码配置2" prop="second_flag">
+                <el-checkbox v-model="formEncode.second_flag" label="启用编码配置2" border />
+              </el-form-item>
+              <!-- 编码配置2 start---------------------------------------- -->
+              <div v-show="formEncode.second_flag === true || formEncode.second_flag === 1" style="border: 1px solid #409eff;padding: 20px;">
+                <el-form-item label="视频编码2" prop="v_codec2">
+                  <el-select v-model="formEncode.v_codec2" placeholder="请选择视频编码2">
+                    <el-option v-for="(v, k) in v_codec_obj" :key="k" :label="v" :value="k" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="分辨率2" prop="v_resolution2">
+                  <el-select v-model="formEncode.v_resolution2" placeholder="请选择分辨率2">
+                    <el-option label="auto" value="" />
+                    <el-option label="7680x4320" value="7680x4320" />
+                    <el-option label="3840x2160" value="3840x2160" />
+                    <el-option label="1920x1080" value="1920x1080" />
+                    <el-option label="1280x720" value="1280x720" />
+                    <el-option label="640x360" value="640x360" />
+                    <el-option label="Custom" value="Custom" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item v-if="formEncode.v_resolution2 === 'Custom'" label="自定义分辨率">
+                  <el-col :span="11">
+                    <el-input v-model="formEncode.v_resolution_w2" placeholder="宽" style="width: 100%;" />
+                  </el-col>
+                  <el-col class="line" :span="2" style="text-align: center;">×</el-col>
+                  <el-col :span="11">
+                    <el-input v-model="formEncode.v_resolution_h2" placeholder="高" style="width: 100%;" />
+                  </el-col>
+                </el-form-item>
+                <el-form-item label="视频码率2" prop="v_bitrate2">
+                  <el-input v-model="formEncode.v_bitrate2" placeholder="请输入视频码率2">
+                    <template slot="append">kbps</template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="视频帧率2" prop="v_framerate2">
+                  <el-select v-model="formEncode.v_framerate2" placeholder="请选择视频帧率2">
+                    <el-option label="auto" value="" />
+                    <el-option label="60" value="60" />
+                    <el-option label="59.94" value="59.94" />
+                    <el-option label="50" value="50" />
+                    <el-option label="30" value="30" />
+                    <el-option label="29.97" value="29.97" />
+                    <el-option label="25" value="25" />
+                    <el-option label="24" value="24" />
+                    <el-option label="23.98" value="23.98" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="profile2" prop="v_profile2">
+                  <el-select v-model="formEncode.v_profile2" placeholder="请选择profile2">
+                    <el-option label="auto" value="" />
+                    <el-option label="rext" value="rext" />
+                    <el-option label="main" value="main" />
+                    <el-option label="high" value="high" />
+                    <el-option label="main10" value="main10" />
+                    <el-option label="high10" value="high10" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="预设值2" prop="v_preset2">
+                  <el-select v-model="formEncode.v_preset2" placeholder="请选择预设值2">
+                    <el-option label="auto" value="" />
+                    <template v-if="formEncode.v_codec2 === 'libx264' || formEncode.v_codec2 === 'libx265'">
+                      <el-option label="ultrafast" value="ultrafast" />
+                      <el-option label="superfast" value="superfast" />
+                      <el-option label="veryfast" value="veryfast" />
+                      <el-option label="faster" value="faster" />
+                      <el-option label="fast" value="fast" />
+                      <el-option label="medium" value="medium" />
+                      <el-option label="slow" value="slow" />
+                      <el-option label="slower" value="slower" />
+                      <el-option label="veryslow" value="veryslow" />
+                      <el-option label="placebo" value="placebo" />
+                    </template>
+                    <template v-else-if="formEncode.v_codec2 === 'h264_nvenc' || formEncode.v_codec2 === 'hevc_nvenc'">
+                      <el-option label="slow" value="slow" />
+                      <el-option label="medium" value="medium" />
+                      <el-option label="fast" value="fast" />
+                      <el-option label="hp" value="hp" />
+                      <el-option label="hq" value="hq" />
+                      <el-option label="bd" value="bd" />
+                      <el-option label="ll" value="ll" />
+                      <el-option label="llhq" value="llhq" />
+                      <el-option label="llhp" value="llhp" />
+                      <el-option label="lossless" value="lossless" />
+                      <el-option label="losslesshp" value="losslesshp" />
+                    </template>
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="音频编码2" prop="a_codec2">
+                  <el-select v-model="formEncode.a_codec2" placeholder="请选择音频编码2">
+                    <el-option label="PASS" value="copy" />
+                    <el-option label="aac" value="aac" />
+                    <el-option label="MP2 (MPEG audio layer 2)" value="mp2" />
+                    <el-option label="MP3 (MPEG audio layer 3)" value="mp3" />
+                    <el-option label="AC3" value="ac3" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="音频采样率2" prop="a_samplerate2">
+                  <el-select v-model="formEncode.a_samplerate2" placeholder="请选择音频采样率2">
+                    <el-option label="auto" value="" />
+                    <el-option label="44100hz" value="44100" />
+                    <el-option label="48000hz" value="48000" />
+                    <el-option label="32000hz" value="32000" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="音频位数2" prop="a_bits2">
+                  <el-select v-model="formEncode.a_bits2" placeholder="请选择音频位数2">
+                    <el-option label="16bit" value="16" />
+                    <el-option label="24bit" value="24" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="音频码率2" prop="a_bitrate2">
+                  <el-select v-model="formEncode.a_bitrate2" placeholder="请选择音频码率2">
+                    <el-option label="384k" value="384k" />
+                    <el-option label="192k" value="192k" />
+                    <el-option label="128k" value="128k" />
+                    <el-option label="自定义" value="自定义" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item v-if="customBitrate2" label="自定义音频码率2" prop="a_bitrate_custom2">
+                  <el-input v-model="formEncode.a_bitrate_custom2" placeholder="请输入音频码率2" />
+                </el-form-item>
+                <el-form-item label="输出码率2" prop="muxrate2">
+                  <el-input v-model="formEncode.muxrate2" placeholder="请输入输出码率2">
+                    <template slot="append">kbps</template>
+                  </el-input>
+                </el-form-item>
+                <el-form-item label="自定义参数2" prop="custom2">
+                  <el-input v-model="formEncode.custom2" placeholder="请输入自定义参数2" />
+                </el-form-item>
+                <el-form-item label="输出配置2" prop="output2">
+                  <el-select v-model="formEncode.output2_id" placeholder="请选择输出配置2" @change="output2Change">
+                    <el-option v-for="(item, k) in outputList" :key="k" :label="item.typename + '' + item.url" :value="item.id" :disabled="item.status === 1 && item.id !== currOutput2id" :checked="output2.id === item.id">
+                      <span style="float: left">{{ item.typename }} {{ item.url }}</span>
+                      <span style="float: right; color: #8492a6; font-size: 13px">{{ item.interface }}</span>
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <!-- 编码配置2 end----------------------------------------- -->
               <el-form-item label="台标">
                 <p>
                   <el-button v-if="!v_resolution_w || !v_resolution_h" type="primary" @click="$message({ message: '请选择分辨率！', type: 'error' })">选择台标</el-button>
@@ -383,6 +526,32 @@
               <p><span>日志：</span>{{ formEncode.log }}</p> -->
               <p><span>状态：</span>{{ formEncode.status }}</p>
               <p><span>台标：</span><img :src="formEncode.logo && formEncode.logo.url"></p>
+              <template v-if="formEncode.second_flag">
+                <p><span>视频编码2：</span>{{ v_codec_obj[formEncode.v_codec2] }}</p>
+                <p><span>视频宽度2：</span>{{ formEncode.v_resolution_w2 }}</p>
+                <p><span>视频高度2：</span>{{ formEncode.v_resolution_h2 }}</p>
+                <p><span>视频码率2：</span>{{ formEncode.v_bitrate2 }}bps</p>
+                <p><span>视频帧率2：</span>{{ formEncode.v_framerate2 }}</p>
+                <p><span>profile2：</span>{{ formEncode.v_profile2 }}</p>
+                <p><span>预设值2：</span>{{ formEncode.v_preset2 }}</p>
+                <p><span>音频编码2：</span>{{ formEncode.a_codec2 }}</p>
+                <p><span>音频位数2：</span>{{ formEncode.a_bits2 }}位</p>
+                <p><span>音频采样率2：</span>{{ formEncode.a_samplerate2 }}hz</p>
+                <p><span>音频码率2：</span>{{ formEncode.a_bitrate2 }}</p>
+                <p><span>输出码率2：</span>{{ formEncode.muxrate2 }}bps</p>
+                <p><span>输出配置2：</span></p>
+                <p style="padding-left: 20px;"><span>名称：</span>{{ output2.name }}</p>
+                <p style="padding-left: 20px;"><span>类型名称：</span>{{ output2.typename }}</p>
+                <p style="padding-left: 20px;"><span>协议：</span>{{ output2.protocol }}</p>
+                <p style="padding-left: 20px;"><span>链接地址：</span>{{ output2.url }}</p>
+                <p style="padding-left: 20px;"><span>网卡：</span>{{ output2.interface }}</p>
+                <p style="padding-left: 20px;"><span>输出格式：</span>{{ output2.format }}</p>
+                <p style="padding-left: 20px;"><span>ts信息：</span>{{ output2.tsinfo }}</p>
+                <p style="padding-left: 20px;"><span>状态：</span>{{ output2.statusstr }}</p>
+                <p v-if="output2.para_name1" style="padding-left: 20px;"><span>参数1：</span>{{ output2.para_name1 }}：{{ output2.para_value1 }}</p>
+                <p v-if="output2.para_name2" style="padding-left: 20px;"><span>参数2：</span>{{ output2.para_name2 }}：{{ output2.para_value2 }}</p>
+                <p v-if="output2.para_name3" style="padding-left: 20px;"><span>参数3：</span>{{ output2.para_name3 }}：{{ output2.para_value3 }}</p>
+              </template>
             </div>
             <el-button v-if="flag === 'edit'" type="primary" size="medium" icon="el-icon-edit" plain @click="formEncode = channel;handle = 'form';">修改配置</el-button>
             <el-button v-if="flag === 'add'" type="primary" size="medium" icon="el-icon-edit" plain @click="handle = 'form'">修改配置</el-button>
@@ -409,6 +578,32 @@
               <p><span>日志：</span>{{ formEncode.log }}</p> -->
               <p><span>状态：</span>{{ formEncode.status }}</p>
               <p><span>台标：</span><img :src="formEncode.logo && formEncode.logo.url"></p>
+              <template v-if="formEncode.second_flag">
+                <p><span>视频编码2：</span>{{ v_codec_obj[formEncode.v_codec2] }}</p>
+                <p><span>视频宽度2：</span>{{ formEncode.v_resolution_w2 }}</p>
+                <p><span>视频高度2：</span>{{ formEncode.v_resolution_h2 }}</p>
+                <p><span>视频码率2：</span>{{ formEncode.v_bitrate2 }}bps</p>
+                <p><span>视频帧率2：</span>{{ formEncode.v_framerate2 }}</p>
+                <p><span>profile2：</span>{{ formEncode.v_profile2 }}</p>
+                <p><span>预设值2：</span>{{ formEncode.v_preset2 }}</p>
+                <p><span>音频编码2：</span>{{ formEncode.a_codec2 }}</p>
+                <p><span>音频位数2：</span>{{ formEncode.a_bits2 }}位</p>
+                <p><span>音频采样率2：</span>{{ formEncode.a_samplerate2 }}hz</p>
+                <p><span>音频码率2：</span>{{ formEncode.a_bitrate2 }}</p>
+                <p><span>输出码率2：</span>{{ formEncode.muxrate2 }}bps</p>
+                <p><span>输出配置2：</span></p>
+                <p style="padding-left: 20px;"><span>名称：</span>{{ output2.name }}</p>
+                <p style="padding-left: 20px;"><span>类型名称：</span>{{ output2.typename }}</p>
+                <p style="padding-left: 20px;"><span>协议：</span>{{ output2.protocol }}</p>
+                <p style="padding-left: 20px;"><span>链接地址：</span>{{ output2.url }}</p>
+                <p style="padding-left: 20px;"><span>网卡：</span>{{ output2.interface }}</p>
+                <p style="padding-left: 20px;"><span>输出格式：</span>{{ output2.format }}</p>
+                <p style="padding-left: 20px;"><span>ts信息：</span>{{ output2.tsinfo }}</p>
+                <p style="padding-left: 20px;"><span>状态：</span>{{ output2.statusstr }}</p>
+                <p v-if="output2.para_name1" style="padding-left: 20px;"><span>参数1：</span>{{ output2.para_name1 }}：{{ output2.para_value1 }}</p>
+                <p v-if="output2.para_name2" style="padding-left: 20px;"><span>参数2：</span>{{ output2.para_name2 }}：{{ output2.para_value2 }}</p>
+                <p v-if="output2.para_name3" style="padding-left: 20px;"><span>参数3：</span>{{ output2.para_name3 }}：{{ output2.para_value3 }}</p>
+              </template>
             </div>
           </div>
         </el-card>
@@ -645,7 +840,24 @@ export default {
         a_bits: '16bit',
         a_bitrate: '192k', // 正整数 必选----音频码率
         v_format: 'yuv420p', // 420p yuyv422 uyvy422 444p 可选----输出格式
-        a_bitrate_custom: ''
+        a_bitrate_custom: '',
+        second_flag: 0,
+        v_codec2: 'hevc_nvenc',
+        v_resolution2: '',
+        v_resolution_w2: '',
+        v_resolution_h2: '',
+        v_bitrate2: 10000,
+        v_framerate2: '',
+        v_profile2: 'main10',
+        v_preset2: 'slow',
+        a_codec2: 'aac',
+        a_samplerate2: '48000',
+        a_bits2: '16bit',
+        a_bitrate2: '192k',
+        a_bitrate_custom2: '',
+        muxrate2: '',
+        custom2: '',
+        output2_id: ''
       },
       checkedLogo: {},
       formOutput: {
@@ -666,9 +878,12 @@ export default {
       inputIndex: '',
       output: [],
       outputIndex: [],
+      output2: {},
+      currOutput2id: '',
       editInputIdx: '',
       editOutputIdx: '',
       customBitrate: false,
+      customBitrate2: false,
       rules: {
         name: [
           { required: true, message: '请输入频道名称', trigger: 'blur' }
@@ -706,6 +921,21 @@ export default {
         a_bitrate_custom: [
           { required: true, message: '请输入自定义音频码率', trigger: 'blur' }
         ],
+        // v_codec2: [
+        //   { required: true, message: '请选择视频编码2', trigger: 'change' }
+        // ],
+        // v_bitrate2: [
+        //   { required: true, message: '请输入视频码率2', trigger: 'blur' }
+        // ],
+        // a_codec2: [
+        //   { required: true, message: '请选择音频编码2', trigger: 'change' }
+        // ],
+        // a_bitrate2: [
+        //   { required: true, message: '请输入音频码率2', trigger: 'change' }
+        // ],
+        // a_bitrate_custom2: [
+        //   { required: true, message: '请输入自定义音频码率2', trigger: 'blur' }
+        // ],
         format: [
           { required: true, message: '请输入输出格式', trigger: 'blur' }
         ]
@@ -786,6 +1016,28 @@ export default {
         this.customBitrate = true
       } else {
         this.customBitrate = false
+      }
+    },
+    'formEncode.v_resolution2': function(val, oldVal) {
+      if (val) {
+        if (val.indexOf('x') > 0) {
+          var arr = val.split('x')
+          this.formEncode.v_resolution_w2 = arr[0]
+          this.formEncode.v_resolution_h2 = arr[1]
+        } else {
+          this.formEncode.v_resolution_w2 = ''
+          this.formEncode.v_resolution_h2 = ''
+        }
+      } else {
+        this.formEncode.v_resolution_w2 = ''
+        this.formEncode.v_resolution_h2 = ''
+      }
+    },
+    'formEncode.a_bitrate2': function(val, oldVal) {
+      if (val === '自定义') {
+        this.customBitrate2 = true
+      } else {
+        this.customBitrate2 = false
       }
     }
   },
@@ -1106,7 +1358,22 @@ export default {
             params.a_bitrate = this.formEncode.a_bitrate_custom
           }
         }
+        if (this.formEncode.second_flag) {
+          // params.output2_id = this.output2 && this.output2.id
+          if (this.formEncode.a_bitrate2 === '自定义') {
+            if (this.formEncode.a_bitrate_custom2 === '') {
+              this.$message({
+                message: '请填写您的自定义音频码率2！',
+                type: 'error'
+              })
+              return false
+            } else {
+              params.a_bitrate2 = this.formEncode.a_bitrate_custom2
+            }
+          }
+        }
       }
+      params.second_flag = params.second_flag ? 1 : 0
       params.name = this.formService.name
       params.type = this.formService.type
       params.input_class = this.input.class
@@ -1168,10 +1435,25 @@ export default {
             params.a_bitrate = this.formEncode.a_bitrate_custom
           }
         }
+        if (this.formEncode.second_flag) {
+          // params.output2_id = this.output2 && this.output2.id
+          if (this.formEncode.a_bitrate2 === '自定义') {
+            if (this.formEncode.a_bitrate_custom2 === '') {
+              this.$message({
+                message: '请填写您的自定义音频码率2！',
+                type: 'error'
+              })
+              return false
+            } else {
+              params.a_bitrate2 = this.formEncode.a_bitrate_custom2
+            }
+          }
+        }
       } else {
         // 解码器不需要编码配置中的内容
         params.id = this.formEncode.id
       }
+      params.second_flag = params.second_flag ? 1 : 0
       params.name = this.formService.name
       params.input_class = this.input.class
       params.input_id = this.input.id
@@ -1264,6 +1546,8 @@ export default {
         this.input = response.input ? response.input : {}
         this.inputIndex = this.input.id || ''
         this.output = response.output.length ? response.output : []
+        this.output2 = response.output2.length ? response.output2[0] : {}
+        this.currOutput2id = (this.output2 && this.output2.id) || ''
         if (this.output) {
           var outputIds = this.output.map(function(item) {
             return item.id
@@ -1271,6 +1555,8 @@ export default {
           this.outputIndex = outputIds
         }
         this.formEncode = response
+        this.formEncode.second_flag = !!this.formEncode.second_flag
+        this.formEncode.output2_id = (this.output2 && this.output2.id) || ''
         var v_resolution = (this.formEncode.v_resolution_w && this.formEncode.v_resolution_h) ? (this.formEncode.v_resolution_w + 'x' + this.formEncode.v_resolution_h) : ''
         this.$set(this.formEncode, 'v_resolution', v_resolution)
         if (['384k', '192k', '128k'].indexOf(this.formEncode.a_bitrate) === -1) {
@@ -1325,6 +1611,14 @@ export default {
           this.output.splice(delIdx, 1)
         }
       }
+    },
+    output2Change(val) {
+      console.log(val)
+      // this.formEncode.output2_id = val.id
+      var curr = this.outputList.filter((item, key, arr) => {
+        return item.id === val
+      })
+      this.output2 = curr[0]
     },
     cleanLogo() {
       this.checkedLogo = {}
