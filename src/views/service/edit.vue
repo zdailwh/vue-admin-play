@@ -1111,9 +1111,9 @@ export default {
       params.type = this.formService.type
       params.input_class = this.input.class
       params.input_id = this.input.id
-      if (this.formService.type === 1 && this.output.length > 1) {
+      if (this.output.length > 1) {
         this.$message({
-          message: '解码器只能选择一个输出配置！',
+          message: '只能选择一个输出配置！',
           type: 'error'
         })
         return
@@ -1175,9 +1175,9 @@ export default {
       params.name = this.formService.name
       params.input_class = this.input.class
       params.input_id = this.input.id
-      if (this.formService.type === 1 && this.output.length > 1) {
+      if (this.output.length > 1) {
         this.$message({
-          message: '解码器只能选择一个输出配置！',
+          message: '只能选择一个输出配置！',
           type: 'error'
         })
         return
